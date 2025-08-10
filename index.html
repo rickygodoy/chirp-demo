@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chirp Demo</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Chirp Model Showcase</h1>
+    </header>
+
+    <div class="tab-container">
+        <div class="tab-nav">
+            <button class="tab-button active" onclick="openTab(event, 'module1')">Creative Storyteller</button>
+            <button class="tab-button" onclick="openTab(event, 'module2')">Real-Time Captioner</button>
+            <button class="tab-button" onclick="openTab(event, 'module3')">Singing Contest</button>
+        </div>
+
+        <div id="module1" class="tab-content" style="display: block;">
+            <h2>Module 1: The Creative Storyteller</h2>
+            <p>This demo focuses on the human-like quality and personality of the TTS voices.</p>
+            <div class="interactive-area">
+                <p class="prompt">Tell me the beginning of a story.</p>
+                <textarea id="story-input" rows="4" placeholder="e.g., In a world made of candy, a gingerbread man set off on a quest to find the legendary chocolate river."></textarea>
+                <button id="talk-button">Talk</button>
+                <div id="stt-output"></div>
+                <div id="voice-gallery">
+                    <h3>Choose a Voice:</h3>
+                    <div class="voice-profile" data-voice="Old Storyteller">Old Storyteller</div>
+                    <div class="voice-profile" data-voice="Energetic Youth">Energetic Youth</div>
+                    <div class="voice-profile" data-voice="Mysterious Narrator">Mysterious Narrator</div>
+                    <div class="voice-profile" data-voice="British Newsreader">British Newsreader</div>
+                </div>
+                <audio id="tts-audio" controls></audio>
+            </div>
+        </div>
+
+        <div id="module2" class="tab-content">
+            <h2>Module 2: The Real-Time Captioner</h2>
+            <p>This is a direct and powerful demonstration of Chirp's real-time performance.</p>
+            <div class="interactive-area">
+                <p class="prompt">Press 'Start Captioning' and just start talking. Try speaking fast!</p>
+                <button id="caption-button">Start Captioning</button>
+                <div id="caption-output"></div>
+            </div>
+        </div>
+
+        <div id="module3" class="tab-content">
+            <h2>Module 3: The Singing Contest</h2>
+            <p>Have a user sing precisely on top of lyrics (points for match)</p>
+            <div class="interactive-area">
+                <p class="prompt">Sing the following lyrics:</p>
+                <div id="lyrics">Twinkle, twinkle, little star...</div>
+                <button id="sing-button">Start Singing</button>
+                <div id="sing-output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
