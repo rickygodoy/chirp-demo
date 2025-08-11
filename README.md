@@ -1,6 +1,6 @@
 # Chirp Demo
 
-## Module 1: The Creative Storyteller (Showcasing TTS Voice Quality & Variety)
+## Module 1: The Creative Storyteller (TTS Voice Quality & Variety)
 
 This demo focuses on the human-like quality and personality of the TTS voices.
 
@@ -23,26 +23,11 @@ The user taps a voice.
 * Wide variety of available voices and accents.
 
 
-## Module 2: The Real-Time Captioner (Showcasing Speed & Accuracy)
+## Module 2: The Singing Contest (STT)
 
-This is a direct and powerful demonstration of Chirp's real-time performance.
-
-### How it Works
-The interface is very simple: a large, clean text area.
-The user is instructed: "Press 'Start Captioning' and just start talking. Try speaking fast!"
-As the user speaks, Chirp's streaming transcription populates the screen word-by-word, almost instantly.
-
-**We could also make it possible to translate the speech to another language in realtime.
-**
-**Advanced Feature**: If two people are present, you can even showcase speaker diarization, where the transcript automatically identifies and labels "Speaker 1" and "Speaker 2".
-
+Have a user sing precisely on top of lyrics (points for match)
 
 ### Chirp Features Showcased
 * Low-latency streaming transcription.
 * High accuracy even with rapid speech.
 * Speaker Diarization (an advanced and very impressive feature).
-
-
-## Module 3: The Singing Contest
-
-Have a user sing precisely on top of lyrics (points for match)

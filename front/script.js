@@ -1,60 +1,16 @@
-function openTab(evt, tabName) {
-    // Get all elements with class="tab-content" and hide them
-    const tabcontent = document.getElementsByClassName("tab-content");
-    for (let i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-    }
-
-    // Get all elements with class="tab-button" and remove the class "active"
-    const tabbuttons = document.getElementsByClassName("tab-button");
-    for (let i = 0; i < tabbuttons.length; i++) {
-        tabbuttons[i].className = tabbuttons[i].className.replace(" active", "");
-    }
-
-    // Show the current tab, and add an "active" class to the button that opened the tab
-    document.getElementById(tabName).style.display = "block";
-    evt.currentTarget.className += " active";
-}
-
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Module 1: The Creative Storyteller
-    const storyInput = document.getElementById('story-input');
-    const talkButton = document.getElementById('talk-button');
-    const sttOutput = document.getElementById('stt-output');
-    const voiceProfiles = document.querySelectorAll('.voice-profile');
-    const ttsAudio = document.getElementById('tts-audio');
-
-    talkButton.addEventListener('click', () => {
-        sttOutput.textContent = `"${storyInput.value}"`;
-    });
-
-    voiceProfiles.forEach(profile => {
-        profile.addEventListener('click', () => {
-            const story = storyInput.value || "You haven't written a story yet.";
-            const voice = profile.dataset.voice;
-            // In a real application, this would call the TTS API.
-            // For this demo, we'll use a placeholder audio or a web speech API.
-            const utterance = new SpeechSynthesisUtterance(`${voice} reading: ${story}`);
-            speechSynthesis.speak(utterance);
-        });
-    });
-
-    // Module 2: The Real-Time Captioner
+    // --- Module 2 Logic from here ---
     const captionButton = document.getElementById('caption-button');
     const captionOutput = document.getElementById('caption-output');
-
+    
     let socket;
     let audioContext;
-    let processor;
     let input;
     let globalStream;
 
     // This will accumulate the final transcript
     let finalTranscript = '';
-
-
-
 
     captionButton.addEventListener('click', async () => {
         if (captionButton.textContent === 'Start Captioning') {
@@ -128,13 +84,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
-    // Module 3: The Singing Contest
-    const singButton = document.getElementById('sing-button');
-    const singOutput = document.getElementById('sing-output');
-
-    singButton.addEventListener('click', () => {
-        singOutput.textContent = "Calculating score... You scored 95! Excellent match!";
-    });
-
 });
