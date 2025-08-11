@@ -96,9 +96,21 @@ def run_grpc_stream(audio_queue: queue.Queue, websocket, loop: asyncio.AbstractE
 
                 print(result)
 
+                # Create a list of word details from the first alternative
+                words_list = []
+                if result.alternatives and result.alternatives[0].words:
+                    for word_info in result.alternatives[0].words:
+                        words_list.append({
+                            "word": word_info.word,
+                            "startTime": word_info.start_offset.total_seconds(),
+                            "endTime": word_info.end_offset.total_seconds(),
+                            "confidence": word_info.confidence,
+                        })
+
                 message = json.dumps({
                     "transcript": result.alternatives[0].transcript,
-                    "isFinal": result.is_final
+                    "isFinal": result.is_final,
+                    "words": words_list
                 })
                 # Schedule the send operation on the main event loop
                 asyncio.run_coroutine_threadsafe(websocket.send(message), loop)
