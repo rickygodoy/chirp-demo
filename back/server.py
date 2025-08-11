@@ -26,7 +26,19 @@ async def receive_from_client(websocket, audio_queue: queue.Queue):
     loop = asyncio.get_running_loop()
     try:
         async for message in websocket:
-            await loop.run_in_executor(None, audio_queue.put, message)
+            if isinstance(message, str):
+                try:
+                    # It's a string, so it could be a JSON command
+                    data = json.loads(message)
+                    if data.get("action") == "stop":
+                        print("Received stop signal from client.")
+                        break  # Exit the loop, signaling the end of audio
+                except json.JSONDecodeError:
+                    print(f"Warning: Received a non-JSON string message: {message}")
+            else:
+                # It's not a string, so assume it's binary audio data
+                await loop.run_in_executor(None, audio_queue.put, message)
+
     except websockets.exceptions.ConnectionClosedError:
         print("Client connection closed.")
     except Exception as e:

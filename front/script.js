@@ -2,7 +2,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const songRefrains = {
     "bohemian-rhapsody": `Mama, ooh\nDidn't mean to make you cry\nIf I'm not back again this time tomorrow\nCarry on, carry on`,
     "smells-like-teen-spirit": `With the lights out, it's less dangerous\nHere we are now, entertain us\nI feel stupid and contagious`,
-    "hotel-california": `Welcome to the Hotel California\nSuch a lovely place (such a lovely place), such a lovely face`,
+    "hotel-california": {
+      text: `Welcome to the Hotel California\nSuch a lovely place (such a lovely place), such a lovely face`,
+      words: [{"startOffset":"1.120s","endOffset":"1.520s","word":"Welcome","confidence":0.57869446},{"startOffset":"1.520s","endOffset":"1.760s","word":"to","confidence":0.6914779},{"startOffset":"1.760s","endOffset":"1.960s","word":"the","confidence":0.66414154},{"startOffset":"1.960s","endOffset":"2.920s","word":"hotel","confidence":0.47806403},{"startOffset":"2.920s","endOffset":"4.360s","word":"California.","confidence":0.6076948},{"startOffset":"6.640s","endOffset":"6.920s","word":"Such","confidence":0.8000884},{"startOffset":"6.920s","endOffset":"6.960s","word":"a","confidence":0.800502},{"startOffset":"6.960s","endOffset":"7.640s","word":"lovely","confidence":0.66628623},{"startOffset":"7.640s","endOffset":"8.240s","word":"place.","confidence":0.6815639},{"startOffset":"8.240s","endOffset":"8.640s","word":"Such","confidence":0.7269194},{"startOffset":"8.640s","endOffset":"8.680s","word":"a","confidence":0.8859668},{"startOffset":"8.680s","endOffset":"9.280s","word":"lovely","confidence":0.7817678},{"startOffset":"9.280s","endOffset":"9.920s","word":"place.","confidence":0.7867407},{"startOffset":"9.920s","endOffset":"10.200s","word":"Such","confidence":0.5348571},{"startOffset":"10.200s","endOffset":"10.280s","word":"a","confidence":0.78996915},{"startOffset":"10.280s","endOffset":"10.920s","word":"lovely","confidence":0.78227997},{"startOffset":"10.920s","endOffset":"11.560s","word":"face.","confidence":0.706933}].map(w => ({
+            ...w,
+            word: normalizeText(w.word),
+            startTime: parseFloat(w.startOffset),
+            endTime: parseFloat(w.endOffset),
+        })),
+    },
     "billie-jean": `Billie Jean is not my lover\nShe's just a girl, who claims that I am the one\nBut the kid is not my son`,
     "stairway-to-heaven": `When she gets there she knows\nIf the stores are all closed\nWith a word she can get what she came for`,
   };
@@ -38,10 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
       captionButton.disabled = false;
 
       const songKey = option.dataset.value;
-      const refrain = songRefrains[songKey];
+      const refrainData = songRefrains[songKey];
 
-      if (refrain) {
-        refrainOutput.textContent = refrain;
+      // Check if it's the new object format or the old string
+      const refrainText =
+        typeof refrainData === "object" ? refrainData.text : refrainData;
+
+      if (refrainText) {
+        refrainOutput.textContent = refrainText;
         refrainOutput.classList.add("visible");
       } else {
         refrainOutput.classList.remove("visible");
@@ -78,7 +90,103 @@ document.addEventListener("DOMContentLoaded", () => {
       .trim();
   }
 
-  function calculateScore(userWords, originalRefrain) {
+  function calculateScore(userWords, originalRefrainData) {
+  // If we have the detailed timing data for the original song, use the new method
+  if (typeof originalRefrainData === "object" && originalRefrainData.words) {
+    return calculateDetailedScore(userWords, originalRefrainData.words);
+  } else {
+    // Fallback to the old rhythm-based scoring for other songs
+    return calculateRhythmScore(userWords, originalRefrainData);
+  }
+}
+
+function calculateDetailedScore(userWords, originalWords) {
+  if (userWords.length === 0 || originalWords.length === 0) {
+    return {
+      overallScore: 0,
+      confidenceScore: 0,
+      accuracyScore: 0,
+      timingScore: 0,
+    };
+  }
+
+  // 1. Normalize start times for both sequences
+  const userStartTime = userWords[0].startTime;
+  const originalStartTime = originalWords[0].startTime;
+
+  const normalizedUserWords = userWords.map((w) => ({
+    ...w,
+    word: normalizeText(w.word),
+    relativeStart: w.startTime - userStartTime,
+  }));
+
+  const normalizedOriginalWords = originalWords.map((w) => ({
+    ...w,
+    // word is already pre-normalized in the data structure
+    relativeStart: w.startTime - originalStartTime,
+  }));
+
+  // 2. Align words and calculate metrics
+  let matches = 0;
+  let totalConfidence = 0;
+  let totalTimingError = 0;
+  const maxTimingError = 1.0; // Max timing error in seconds for a word to get a timing score of 0
+
+  let originalIndex = 0;
+  for (const userWord of normalizedUserWords) {
+    // Find the user's word in the remaining original words
+    for (let j = originalIndex; j < normalizedOriginalWords.length; j++) {
+      if (userWord.word === normalizedOriginalWords[j].word) {
+        const originalWord = normalizedOriginalWords[j];
+        matches++;
+        totalConfidence += userWord.confidence;
+
+        const timingError = Math.abs(
+          userWord.relativeStart - originalWord.relativeStart,
+        );
+        totalTimingError += timingError;
+
+        originalIndex = j + 1; // Move to the next word to enforce order
+        break; // Found match, move to the next user word
+      }
+    }
+  }
+
+  // --- 3. Calculate final scores (0-100) ---
+
+  // Accuracy: Percentage of correctly sung words
+  const accuracyScore = (matches / originalWords.length) * 100;
+
+  // Confidence: Average confidence of the words that were matched
+  const avgConfidence = matches > 0 ? totalConfidence / matches : 0;
+  const confidenceScore = avgConfidence * 100;
+
+  // Timing: Lower average error is better.
+  let timingScore = 0;
+  if (matches > 0) {
+    const avgTimingError = totalTimingError / matches;
+    // Scale the score. If avg error is 0, score is 100. If avg error is >= maxTimingError, score is 0.
+    timingScore = Math.max(0, (1 - avgTimingError / maxTimingError) * 100);
+  }
+
+  // 4. Overall Score (weighted average)
+  const overallScore = Math.min(
+    100,
+    accuracyScore * 0.5 + // 50%
+      confidenceScore * 0.3 + // 30%
+      timingScore * 0.2, // 20%
+  );
+
+  return {
+    overallScore: Math.round(overallScore),
+    confidenceScore: Math.round(confidenceScore),
+    accuracyScore: Math.round(accuracyScore),
+    timingScore: Math.round(timingScore), // The new score component
+  };
+}
+
+// Renamed original function to be used as a fallback
+function calculateRhythmScore(userWords, originalRefrain) {
     if (userWords.length === 0) {
       return {
         overallScore: 0,
@@ -220,15 +328,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       socket.onclose = () => {
         captionButton.textContent = start_singing;
+        captionButton.disabled = false; // Re-enable button
 
         // --- Perform Scoring ---
         const songKey = songSelect.dataset.value;
         const originalRefrain = songRefrains[songKey];
         if (originalRefrain && finalWords.length > 0) {
           const score = calculateScore(finalWords, originalRefrain);
-          captionOutput.textContent =
-            `${finalTranscript}\n\nScore: ${score.overallScore}/100\n` +
-            ` (Accuracy: ${score.accuracyScore}, Confidence: ${score.confidenceScore}, Rhythm: ${score.rhythmScore})`;
+          let scoreText =
+            `Score: ${score.overallScore}/100\n` +
+            ` (Accuracy: ${score.accuracyScore}, Confidence: ${score.confidenceScore}`;
+
+          if (score.timingScore !== undefined) {
+            scoreText += `, Timing: ${score.timingScore})`;
+          } else if (score.rhythmScore !== undefined) {
+            scoreText += `, Rhythm: ${score.rhythmScore})`;
+          } else {
+            scoreText += `)`;
+          }
+          captionOutput.textContent = `${finalTranscript}\n\n${scoreText}`;
         } else {
           captionOutput.textContent = `${finalTranscript || "No audio detected :("}`;
         }
@@ -239,18 +357,27 @@ document.addEventListener("DOMContentLoaded", () => {
         captionOutput.textContent =
           "Error: Could not connect to the server. Is it running?";
         captionButton.textContent = start_singing;
+        captionButton.disabled = false; // Re-enable button
       };
     } else {
-      captionButton.textContent = start_singing;
+      // User clicked "Stop Singing"
+      captionButton.textContent = "Processing...";
+      captionButton.disabled = true;
+
+      // Stop the audio source locally
       if (globalStream) {
         globalStream.getTracks().forEach((track) => track.stop());
       }
       if (audioContext) {
         await audioContext.close();
       }
-      if (socket) {
-        socket.close();
+
+      // Signal the server that we are done sending audio
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({ action: "stop" }));
       }
+      // Now we wait for the server to process remaining audio and close the connection.
+      // The socket.onclose event will handle the final scoring and UI reset.
     }
   });
 });
