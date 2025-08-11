@@ -15,7 +15,7 @@
       <h1>Chirp Model Showcase</h1>
     </header>
 
-    <div class="tab-container">
+    <main class="main-container">
       <div id="module2" class="tab-content">
         <h2>The Chirp Singing Contest</h2>
         <p>You have to sing precisely on top of lyrics to earn points</p>
@@ -23,11 +23,71 @@
           <p class="prompt">
             Press 'Start Singing' and the microphone is yours! Good Luck!
           </p>
-          <button id="caption-button">Start Singing</button>
-          <div id="caption-output"></div>
+          <button id="caption-button" disabled>Start Singing</button>
+          <div class="song-selection-container">
+            <div id="song-select" class="custom-select">
+              <div class="select-trigger">
+                <span>Select a song first</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="arrow"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div class="options">
+                <div class="option" data-value="bohemian-rhapsody">
+                  Bohemian Rhapsody - Queen
+                </div>
+                <div class="option" data-value="smells-like-teen-spirit">
+                  Smells Like Teen Spirit - Nirvana
+                </div>
+                <div class="option" data-value="hotel-california">
+                  Hotel California - Eagles
+                </div>
+                <div class="option" data-value="billie-jean">
+                  Billie Jean - Michael Jackson
+                </div>
+                <div class="option" data-value="stairway-to-heaven">
+                  Stairway to Heaven - Led Zeppelin
+                </div>
+              </div>
+            </div>
+          </div>
+          <pre id="refrain-output"></pre>
+          <pre id="caption-output"></pre>
         </div>
       </div>
-    </div>
+
+      <aside class="leaderboard-card">
+        <h2>Highscores</h2>
+        <ol class="highscore-list">
+          <li><span>VocalVortex</span><span>9850</span></li>
+          <li><span>LyricLion</span><span>9720</span></li>
+          <li><span>TuneTitan</span><span>9660</span></li>
+          <li><span>MelodyMaestro</span><span>9540</span></li>
+          <li><span>RiffRanger</span><span>9480</span></li>
+          <li><span>HarmonyHero</span><span>9350</span></li>
+          <li><span>PitchPerfect</span><span>9210</span></li>
+          <li><span>SerenadeStar</span><span>9150</span></li>
+          <li><span>AudioAce</span><span>9030</span></li>
+          <li><span>BeatBuddy</span><span>8970</span></li>
+          <li><span>ChorusChamp</span><span>8850</span></li>
+          <li><span>VibeVirtuoso</span><span>8760</span></li>
+          <li><span>GrooveGuru</span><span>8640</span></li>
+          <li><span>SongbirdSavant</span><span>8520</span></li>
+          <li><span>RhythmRider</span><span>8410</span></li>
+        </ol>
+      </aside>
+    </main>
 
     <script src="script.js"></script>
   </body>

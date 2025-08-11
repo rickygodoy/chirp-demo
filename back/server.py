@@ -5,15 +5,14 @@ import json
 import queue
 from google.cloud.speech_v2 import (
     ExplicitDecodingConfig,
+    RecognitionFeatures,
     SpeechClient,
     StreamingRecognitionConfig,
     StreamingRecognitionFeatures,
     StreamingRecognizeRequest,
     RecognitionConfig,
-    AutoDetectDecodingConfig,
 )
 
-# --- Configuration ---
 PORT = 3001
 PROJECT_ID = "rgodoy-sandbox"
 LOCATION = "us-central1"
@@ -51,7 +50,7 @@ def audio_request_generator(audio_queue: queue.Queue, recognizer, config):
             break
         yield StreamingRecognizeRequest(audio=audio_chunk)
 
-def run_grpc_stream(audio_queue: queue.Queue, websocket: websockets.WebSocketServerProtocol, loop: asyncio.AbstractEventLoop):
+def run_grpc_stream(audio_queue: queue.Queue, websocket, loop: asyncio.AbstractEventLoop):
     """
     This function runs in a separate thread and handles the blocking
     Google Speech API call.
@@ -66,7 +65,12 @@ def run_grpc_stream(audio_queue: queue.Queue, websocket: websockets.WebSocketSer
                     audio_channel_count=1
                 ),
                 language_codes=[LANGUAGE_CODE],
-                model="chirp_2",
+                features=RecognitionFeatures(
+                    enable_word_time_offsets=True,
+                    enable_word_confidence=True,
+                    enable_automatic_punctuation=True
+                ),
+                model="chirp_2"
             ),
             streaming_features=StreamingRecognitionFeatures(interim_results=True),
         )
