@@ -23,6 +23,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const songOptions = songSelect.querySelectorAll(".option");
   const selectedText = songSelectTrigger.querySelector("span");
 
+  // Timer and Progress Bar elements
+  const timerContainer = document.getElementById("timer-container");
+  const countdownText = document.getElementById("countdown-text");
+  const progressBar = document.getElementById("progress-bar");
+
+  // Timer variables
+  let countdownInterval;
+  const RECORDING_DURATION = 15; // seconds
+
+  // Set initial state for the timer
+  countdownText.textContent = RECORDING_DURATION;
+
   // By default, the button is disabled.
   captionButton.disabled = true;
 
@@ -269,98 +281,149 @@ function calculateRhythmScore(userWords, originalRefrain) {
     };
   }
 
+  function startRecordingTimer() {
+    let remainingTime = RECORDING_DURATION;
+
+    const updateTimer = () => {
+      countdownText.textContent = remainingTime;
+      const progressPercentage = (remainingTime / RECORDING_DURATION) * 100;
+      progressBar.style.width = `${progressPercentage}%`;
+    };
+
+    updateTimer(); // Initial display
+
+    countdownInterval = setInterval(() => {
+      remainingTime--;
+      updateTimer();
+
+      if (remainingTime < 0) {
+        clearInterval(countdownInterval);
+        // Automatically trigger the stop action
+        if (captionButton.textContent === stop_singing) {
+          captionButton.click();
+        }
+      }
+    }, 1000);
+  }
+
+  function stopRecordingTimer() {
+    clearInterval(countdownInterval);
+    progressBar.style.width = "100%"; // Reset for next time
+    countdownText.textContent = RECORDING_DURATION;
+  }
+
   captionButton.addEventListener("click", async () => {
     if (captionButton.textContent === start_singing) {
-      captionButton.textContent = stop_singing;
-      captionOutput.textContent = "Connecting to server...";
-      finalTranscript = ""; // Reset transcript
-      finalWords = []; // Reset words
-      socket = new WebSocket("ws://localhost:3001");
+      captionButton.disabled = true; // Disable button during countdown
+      let countdown = 3;
+      captionOutput.textContent = `Get ready... ${countdown}`;
 
-      socket.onopen = () => {
-        captionOutput.textContent = "Connected. Please start singing.";
-        navigator.mediaDevices
-          .getUserMedia({ audio: true, video: false })
-          .then(async (stream) => {
-            globalStream = stream;
-            audioContext = new (window.AudioContext ||
-              window.webkitAudioContext)();
+      const countdownInterval = setInterval(() => {
+        countdown--;
+        if (countdown > 0) {
+          captionOutput.textContent = `Get ready... ${countdown}`;
+        } else {
+          clearInterval(countdownInterval);
+          captionOutput.textContent = 'Connecting...';
+          captionButton.textContent = stop_singing;
+          captionButton.disabled = false; // Re-enable button
 
-            // Load the audio processor worklet
-            await audioContext.audioWorklet.addModule("audio-processor.js");
-            const workletNode = new AudioWorkletNode(
-              audioContext,
-              "audio-processor",
-            );
+          // Start the 15-second recording timer
+          startRecordingTimer();
 
-            // The worklet will post messages with the processed audio buffer
-            workletNode.port.onmessage = (event) => {
-              if (socket.readyState === WebSocket.OPEN) {
-                // Send the Int16Array buffer from the worklet
-                socket.send(event.data);
-              }
-            };
+          // --- Original logic starts here ---
+          finalTranscript = ""; // Reset transcript
+          finalWords = []; // Reset words
+          socket = new WebSocket("ws://localhost:3001");
 
-            input = audioContext.createMediaStreamSource(globalStream);
-            input.connect(workletNode);
-            workletNode.connect(audioContext.destination);
-          })
-          .catch((err) => {
-            console.error("Error getting audio stream:", err);
-            captionOutput.textContent =
-              "Error: Could not access microphone. Please grant permission.";
+          socket.onopen = () => {
+            captionOutput.textContent = "Connected. Please start singing.";
+            navigator.mediaDevices
+              .getUserMedia({ audio: true, video: false })
+              .then(async (stream) => {
+                globalStream = stream;
+                audioContext = new (window.AudioContext ||
+                  window.webkitAudioContext)();
+
+                // Load the audio processor worklet
+                await audioContext.audioWorklet.addModule("audio-processor.js");
+                const workletNode = new AudioWorkletNode(
+                  audioContext,
+                  "audio-processor",
+                );
+
+                // The worklet will post messages with the processed audio buffer
+                workletNode.port.onmessage = (event) => {
+                  if (socket.readyState === WebSocket.OPEN) {
+                    // Send the Int16Array buffer from the worklet
+                    socket.send(event.data);
+                  }
+                };
+
+                input = audioContext.createMediaStreamSource(globalStream);
+                input.connect(workletNode);
+                workletNode.connect(audioContext.destination);
+              })
+              .catch((err) => {
+                console.error("Error getting audio stream:", err);
+                captionOutput.textContent =
+                  "Error: Could not access microphone. Please grant permission.";
+                captionButton.textContent = start_singing;
+              });
+          };
+
+          socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.isFinal) {
+              // Accumulate final results
+              finalTranscript += data.transcript + " ";
+              finalWords.push(...data.words);
+              captionOutput.textContent = finalTranscript;
+            } else {
+              // Display the interim transcript, appended to the final part
+              captionOutput.textContent = finalTranscript + data.transcript;
+            }
+          };
+
+          socket.onclose = () => {
+            stopRecordingTimer(); // Ensure timer is hidden on close
             captionButton.textContent = start_singing;
-          });
-      };
+            captionButton.disabled = false; // Re-enable button
 
-      socket.onmessage = (event) => {
-        const data = JSON.parse(event.data);
-        if (data.isFinal) {
-          // Accumulate final results
-          finalTranscript += data.transcript + " ";
-          finalWords.push(...data.words);
-          captionOutput.textContent = finalTranscript;
-        } else {
-          // Display the interim transcript, appended to the final part
-          captionOutput.textContent = finalTranscript + data.transcript;
+            // --- Perform Scoring ---
+            const songKey = songSelect.dataset.value;
+            const originalRefrain = songRefrains[songKey];
+            if (originalRefrain && finalWords.length > 0) {
+              const score = calculateScore(finalWords, originalRefrain);
+              let scoreText =
+                `Score: ${score.overallScore}/100\n` +
+                ` (Accuracy: ${score.accuracyScore}, Confidence: ${score.confidenceScore}`;
+
+              if (score.timingScore !== undefined) {
+                scoreText += `, Timing: ${score.timingScore})`;
+              } else if (score.rhythmScore !== undefined) {
+                scoreText += `, Rhythm: ${score.rhythmScore})`;
+              } else {
+                scoreText += `)`;
+              }
+              captionOutput.textContent = `${finalTranscript}\n\n${scoreText}`;
+            } else {
+              captionOutput.textContent = `${finalTranscript || "No audio detected :("}`;
+            }
+          };
+
+          socket.onerror = (err) => {
+            console.error("WebSocket Error:", err);
+            captionOutput.textContent =
+              "Error: Could not connect to the server. Is it running?";
+            captionButton.textContent = start_singing;
+            captionButton.disabled = false; // Re-enable button
+          };
         }
-      };
-
-      socket.onclose = () => {
-        captionButton.textContent = start_singing;
-        captionButton.disabled = false; // Re-enable button
-
-        // --- Perform Scoring ---
-        const songKey = songSelect.dataset.value;
-        const originalRefrain = songRefrains[songKey];
-        if (originalRefrain && finalWords.length > 0) {
-          const score = calculateScore(finalWords, originalRefrain);
-          let scoreText =
-            `Score: ${score.overallScore}/100\n` +
-            ` (Accuracy: ${score.accuracyScore}, Confidence: ${score.confidenceScore}`;
-
-          if (score.timingScore !== undefined) {
-            scoreText += `, Timing: ${score.timingScore})`;
-          } else if (score.rhythmScore !== undefined) {
-            scoreText += `, Rhythm: ${score.rhythmScore})`;
-          } else {
-            scoreText += `)`;
-          }
-          captionOutput.textContent = `${finalTranscript}\n\n${scoreText}`;
-        } else {
-          captionOutput.textContent = `${finalTranscript || "No audio detected :("}`;
-        }
-      };
-
-      socket.onerror = (err) => {
-        console.error("WebSocket Error:", err);
-        captionOutput.textContent =
-          "Error: Could not connect to the server. Is it running?";
-        captionButton.textContent = start_singing;
-        captionButton.disabled = false; // Re-enable button
-      };
+      }, 1000);
     } else {
       // User clicked "Stop Singing"
+      stopRecordingTimer(); // Stop and hide the timer immediately
       captionButton.textContent = "Processing...";
       captionButton.disabled = true;
 
