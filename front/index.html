@@ -20,9 +20,11 @@
       <button class="tab-link" data-tab="singing-contest">
         Singing Contest
       </button>
-      <button class="tab-link" data-tab="learning-contest">Learning Contest</button>
+      <button class="tab-link" data-tab="learning-contest">
+        Learning Contest
+      </button>
     </nav>
-ß
+
     <main class="main-content">
       <div id="welcome" class="tab-pane active">
         <div class="welcome-container">
@@ -79,11 +81,39 @@
                     <div class="option" data-value="hotel-california">
                       Hotel California - Eagles
                     </div>
+                    <div class="option" data-value="hey-jude">Hey Jude - The Beatles</div>
                     <div class="option" data-value="billie-jean">
                       Billie Jean - Michael Jackson
                     </div>
                     <div class="option" data-value="stairway-to-heaven">
                       Stairway to Heaven - Led Zeppelin
+                    </div>
+                    <div class="option" data-value="we-are-the-champions">
+                      We Are The Champions - Queen
+                    </div>
+                    <div class="option" data-value="die-with-a-smile">
+                      Die With a Smile - Lady Gaga, Bruno Mars
+                    </div>
+                    <div class="option" data-value="flowers">
+                      Flowers - Miley Cyrus
+                    </div>
+                    <div class="option" data-value="shake-it-off">
+                      Shake It Off - Taylor Swift
+                    </div>
+                    <div class="option" data-value="evidencias">
+                      Evidências - Chitãozinho & Xororó
+                    </div>
+                    <div class="option" data-value="pais-e-filhos">
+                      Pais e Filhos - Legião Urbana
+                    </div>
+                    <div class="option" data-value="eu-sei-de-cor">
+                      Eu Sei De Cor - Marília Mendonça
+                    </div>
+                    <div class="option" data-value="o-sol">
+                      O Sol - Jota Quest
+                    </div>
+                    <div class="option" data-value="velha-infancia">
+                      Velha Infância - Tribalistas
                     </div>
                   </div>
                 </div>
@@ -123,26 +153,28 @@
       </div>
 
       <div id="learning-contest" class="tab-pane">
-          <div class="main-container">
-            <div class="content-card">
-              <h2>The Chirp Hearing Contest</h2>
-              <p>
-                You have to listen and write precisely to earn points
+        <div class="main-container">
+          <div class="content-card">
+            <h2>The Chirp Hearing Contest</h2>
+            <p>You have to listen and write precisely to earn points</p>
+            <div class="interactive-area">
+              <p class="prompt">
+                Press 'Play Sentence' and write what you hear! Good Luck!
               </p>
-              <div class="interactive-area">
-                <p class="prompt">
-                  Press 'Play Sentence' and write what you hear! Good Luck!
-                </p>
-                <button id="play-sentence-button">Play Sentence</button>
+              <button id="play-sentence-button">Play Sentence</button>
 
-                <div class="answer-section">
-                  <input type="text" id="answer-input" placeholder="Digite a frase que você ouviu...">
-                  <button id="confirm-answer-button" disabled>Confirmar</button>
-                </div>
+              <div class="answer-section">
+                <input
+                  type="text"
+                  id="answer-input"
+                  placeholder="Digite a frase que você ouviu..."
+                />
+                <button id="confirm-answer-button" disabled>Confirmar</button>
               </div>
             </div>
+          </div>
 
-            <aside class="leaderboard-card">
+          <aside class="leaderboard-card">
             <h2>Highscores</h2>
             <ol class="highscore-list">
               <li><span>VocalVortex</span><span>9850</span></li>
@@ -162,8 +194,8 @@
               <li><span>RhythmRider</span><span>8410</span></li>
             </ol>
           </aside>
-          </div>
         </div>
+      </div>
     </main>
 
     <script src="script.js"></script>

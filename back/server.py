@@ -16,7 +16,7 @@ from google.cloud.speech_v2 import (
 PORT = 3001
 PROJECT_ID = "rgodoy-sandbox"
 LOCATION = "us-central1"
-LANGUAGE_CODE = "en-US"
+LANGUAGE_CODES = [ "en-US" ]
 RECOGNIZER_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/recognizers/_"
 
 # --- WebSocket and Speech API Handling ---
@@ -76,7 +76,7 @@ def run_grpc_stream(audio_queue: queue.Queue, websocket, loop: asyncio.AbstractE
                     sample_rate_hertz=16000,
                     audio_channel_count=1
                 ),
-                language_codes=[LANGUAGE_CODE],
+                language_codes=LANGUAGE_CODES,
                 features=RecognitionFeatures(
                     enable_word_time_offsets=True,
                     enable_word_confidence=True,
