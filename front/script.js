@@ -1,4 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // --- Tab Switching Logic ---
+  const tabLinks = document.querySelectorAll(".tab-link");
+  const tabPanes = document.querySelectorAll(".tab-pane");
+
+  tabLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      const tabId = link.dataset.tab;
+
+      // Deactivate all tabs
+      tabLinks.forEach((l) => l.classList.remove("active"));
+      tabPanes.forEach((p) => p.classList.remove("active"));
+
+      // Activate the clicked tab
+      link.classList.add("active");
+      document.getElementById(tabId).classList.add("active");
+    });
+  });
+
   const songRefrains = {
     "bohemian-rhapsody": `Mama, ooh\nDidn't mean to make you cry\nIf I'm not back again this time tomorrow\nCarry on, carry on`,
     "smells-like-teen-spirit": `With the lights out, it's less dangerous\nHere we are now, entertain us\nI feel stupid and contagious`,
