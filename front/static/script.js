@@ -592,7 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
                   window.webkitAudioContext)();
 
                 // Load the audio processor worklet
-                await audioContext.audioWorklet.addModule("audio-processor.js");
+                await audioContext.audioWorklet.addModule("/static/audio-processor.js");
                 const workletNode = new AudioWorkletNode(
                   audioContext,
                   "audio-processor",
