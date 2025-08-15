@@ -20,7 +20,7 @@
       <button class="tab-link" data-tab="singing-contest">
         Singing Contest
       </button>
-      <button class="tab-link" data-tab="tbd">TBD</button>
+      <button class="tab-link" data-tab="learning-contest">Learning Contest</button>
     </nav>
 ß
     <main class="main-content">
@@ -122,12 +122,48 @@
         </div>
       </div>
 
-      <div id="tbd" class="tab-pane">
-        <div class="welcome-container">
-          <h2>To Be Determined</h2>
-          <p>This section is under construction. Come back later!</p>
+      <div id="learning-contest" class="tab-pane">
+          <div class="main-container">
+            <div class="content-card">
+              <h2>The Chirp Hearing Contest</h2>
+              <p>
+                You have to listen and write precisely to earn points
+              </p>
+              <div class="interactive-area">
+                <p class="prompt">
+                  Press 'Play Sentence' and write what you hear! Good Luck!
+                </p>
+                <button id="play-sentence-button">Play Sentence</button>
+
+                <div class="answer-section">
+                  <input type="text" id="answer-input" placeholder="Digite a frase que você ouviu...">
+                  <button id="confirm-answer-button" disabled>Confirmar</button>
+                </div>
+              </div>
+            </div>
+
+            <aside class="leaderboard-card">
+            <h2>Highscores</h2>
+            <ol class="highscore-list">
+              <li><span>VocalVortex</span><span>9850</span></li>
+              <li><span>LyricLion</span><span>9720</span></li>
+              <li><span>TuneTitan</span><span>9660</span></li>
+              <li><span>MelodyMaestro</span><span>9540</span></li>
+              <li><span>RiffRanger</span><span>9480</span></li>
+              <li><span>HarmonyHero</span><span>9350</span></li>
+              <li><span>PitchPerfect</span><span>9210</span></li>
+              <li><span>SerenadeStar</span><span>9150</span></li>
+              <li><span>AudioAce</span><span>9030</span></li>
+              <li><span>BeatBuddy</span><span>8970</span></li>
+              <li><span>ChorusChamp</span><span>8850</span></li>
+              <li><span>VibeVirtuoso</span><span>8760</span></li>
+              <li><span>GrooveGuru</span><span>8640</span></li>
+              <li><span>SongbirdSavant</span><span>8520</span></li>
+              <li><span>RhythmRider</span><span>8410</span></li>
+            </ol>
+          </aside>
+          </div>
         </div>
-      </div>
     </main>
 
     <script src="script.js"></script>
