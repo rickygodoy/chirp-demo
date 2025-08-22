@@ -1,74 +1,45 @@
 import asyncio
-from google.api_core.client_options import ClientOptions
-import websockets
 import json
 import queue
+from typing import Dict
+
+import uvicorn
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from google.api_core.client_options import ClientOptions
 from google.cloud.speech_v2 import (
-    ExplicitDecodingConfig,
-    RecognitionFeatures,
     SpeechClient,
     StreamingRecognitionConfig,
-    StreamingRecognitionFeatures,
     StreamingRecognizeRequest,
     RecognitionConfig,
+    RecognitionFeatures,
+    ExplicitDecodingConfig,
+    StreamingRecognitionFeatures,
 )
 
+# --- Configuration ---
 PORT = 3001
-PROJECT_ID = "rgodoy-sandbox"
+PROJECT_ID = "summit-demo-469118"
 LOCATION = "us-central1"
-LANGUAGE_CODES = [ "en-US" ]
+LANGUAGE_CODES = ["en-US"]
 RECOGNIZER_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/recognizers/_"
 
-# --- WebSocket and Speech API Handling ---
+# --- FastAPI App Initialization ---
+app = FastAPI()
 
-async def receive_from_client(websocket, audio_queue: queue.Queue):
-    """Listens for audio on the websocket and puts it into a thread-safe queue."""
-    loop = asyncio.get_running_loop()
-    try:
-        async for message in websocket:
-            if isinstance(message, str):
-                try:
-                    # It's a string, so it could be a JSON command
-                    data = json.loads(message)
-                    if data.get("action") == "stop":
-                        print("Received stop signal from client.")
-                        break  # Exit the loop, signaling the end of audio
-                except json.JSONDecodeError:
-                    print(f"Warning: Received a non-JSON string message: {message}")
-            else:
-                # It's not a string, so assume it's binary audio data
-                await loop.run_in_executor(None, audio_queue.put, message)
-
-    except websockets.exceptions.ConnectionClosedError:
-        print("Client connection closed.")
-    except Exception as e:
-        print(f"Error receiving from client: {e}")
-    finally:
-        # Use run_in_executor to put the sentinel value in the queue
-        await loop.run_in_executor(None, audio_queue.put, None)
+# --- Transcription Logic (Producer-Consumer Pattern) ---
 
 def audio_request_generator(audio_queue: queue.Queue, recognizer, config):
-    """
-    A synchronous generator that yields requests for the Google Speech API.
-    It blocks waiting for audio chunks from the queue.
-    """
-    # 1. Send the initial configuration request.
+    """Yields audio chunks from the input queue to the gRPC stream."""
     yield StreamingRecognizeRequest(recognizer=recognizer, streaming_config=config)
-
-    # 2. Stream audio chunks from the queue.
     while True:
-        audio_chunk = audio_queue.get() # This is a blocking call
-        if audio_chunk is None:
+        chunk = audio_queue.get()
+        if chunk is None:
             break
-        yield StreamingRecognizeRequest(audio=audio_chunk)
+        yield StreamingRecognizeRequest(audio=chunk)
 
-def run_grpc_stream(audio_queue: queue.Queue, websocket, loop: asyncio.AbstractEventLoop):
-    """
-    This function runs in a separate thread and handles the blocking
-    Google Speech API call.
-    """
+def run_grpc_stream(audio_queue: queue.Queue, results_queue: asyncio.Queue):
+    """The Producer: runs the blocking gRPC stream and puts results in a queue."""
     try:
-        # Define the streaming configuration
         streaming_config = StreamingRecognitionConfig(
             config=RecognitionConfig(
                 explicit_decoding_config=ExplicitDecodingConfig(
@@ -86,29 +57,17 @@ def run_grpc_stream(audio_queue: queue.Queue, websocket, loop: asyncio.AbstractE
             ),
             streaming_features=StreamingRecognitionFeatures(interim_results=True),
         )
-
-        # Create the synchronous generator for API requests
         requests = audio_request_generator(audio_queue, RECOGNIZER_NAME, streaming_config)
-
-        # Initialize the Speech client and start the streaming recognition
-        client_options_var = ClientOptions(
-            api_endpoint=f"{LOCATION}-speech.googleapis.com"
-        )
-        speech_client = SpeechClient(client_options=client_options_var)
-        # This is a blocking call that yields responses
+        client_options = ClientOptions(api_endpoint=f"{LOCATION}-speech.googleapis.com")
+        speech_client = SpeechClient(client_options=client_options)
         stream = speech_client.streaming_recognize(requests=requests)
 
-        print("Started Google Speech V2 stream in a separate thread.")
+        print("gRPC stream producer started.")
 
-        # Process responses from the API and send them back to the client
         for response in stream:
             for result in response.results:
                 if not result.alternatives:
                     continue
-
-                print(result)
-
-                # Create a list of word details from the first alternative
                 words_list = []
                 if result.alternatives and result.alternatives[0].words:
                     for word_info in result.alternatives[0].words:
@@ -118,57 +77,82 @@ def run_grpc_stream(audio_queue: queue.Queue, websocket, loop: asyncio.AbstractE
                             "endTime": word_info.end_offset.total_seconds(),
                             "confidence": word_info.confidence,
                         })
-
-                message = json.dumps({
+                message: Dict = {
                     "transcript": result.alternatives[0].transcript,
                     "isFinal": result.is_final,
                     "words": words_list
-                })
-                # Schedule the send operation on the main event loop
-                asyncio.run_coroutine_threadsafe(websocket.send(message), loop)
+                }
+                results_queue.put_nowait(message)
+
     except Exception as e:
-        print(f"Error in gRPC stream: {e}")
+        print(f"Error in gRPC stream producer: {e}")
     finally:
-        print("Google Speech V2 stream ended.")
+        # Put sentinel value to signal end of stream
+        results_queue.put_nowait(None)
+        print("gRPC stream producer ended.")
 
+# --- API Endpoints ---
 
-async def transcribe_handler(websocket):
-    """
-    Handles a single client WebSocket connection. This function orchestrates:
-    1. An async task to receive audio from the client.
-    2. A blocking task (in a thread) to handle the gRPC stream.
-    """
-    print(f"Client connected from {websocket.remote_address}.")
-    audio_queue = queue.Queue()
+@app.get("/health")
+async def health_check():
+    return {"status": "OK"}
+
+@app.websocket("/")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    print("WebSocket client connected.")
+    
+    audio_queue = queue.Queue()       # Thread-safe queue for Client -> gRPC
+    results_queue = asyncio.Queue() # Asyncio queue for gRPC -> Client
+
+    async def receive_from_client():
+        """Receives audio from client and puts it into the audio_queue."""
+        try:
+            while True:
+                message = await websocket.receive()
+                if "bytes" in message:
+                    audio_queue.put(message["bytes"])
+                elif "text" in message:
+                    try:
+                        data = json.loads(message["text"])
+                        if data.get("action") == "stop":
+                            print("Received stop signal from client.")
+                            break
+                    except json.JSONDecodeError:
+                        pass # Ignore non-JSON text messages
+        finally:
+            audio_queue.put(None) # Signal gRPC stream to end
+
+    async def send_to_client():
+        """The Consumer: gets results from results_queue and sends to client."""
+        while True:
+            message = await results_queue.get()
+            if message is None:
+                break # End of stream
+            await websocket.send_text(json.dumps(message))
+        await websocket.close()
+
     loop = asyncio.get_running_loop()
-
     try:
-        # Task 1: Asynchronously receive audio from the websocket client
-        receive_task = asyncio.create_task(receive_from_client(websocket, audio_queue))
-
-        # Task 2: Run the blocking gRPC stream in a separate thread
+        # Run the blocking gRPC producer in a thread pool
         grpc_task = loop.run_in_executor(
-            None, run_grpc_stream, audio_queue, websocket, loop
+            None, run_grpc_stream, audio_queue, results_queue
         )
 
-        # Wait for both tasks to complete
-        await asyncio.gather(receive_task, grpc_task)
+        # Run the asyncio producer and consumer
+        await asyncio.gather(
+            receive_from_client(),
+            send_to_client(),
+            grpc_task
+        )
 
-    except websockets.exceptions.ConnectionClosedOK:
-        print("Client disconnected gracefully.")
+    except WebSocketDisconnect:
+        print("Client disconnected unexpectedly.")
     except Exception as e:
-        print(f"An error occurred in the main handler: {e}")
+        print(f"An error occurred: {e}")
     finally:
         print("Transcription session ended.")
 
-async def main():
-    """Starts the WebSocket server."""
-    print(f"Starting WebSocket server on ws://localhost:{PORT}")
-    async with websockets.serve(transcribe_handler, "localhost", PORT):
-        await asyncio.Future()  # Run forever
-
+# --- Server Startup ---
 if __name__ == "__main__":
-    try:
-        asyncio.run(main())
-    except KeyboardInterrupt:
-        print("\nServer shut down.")
+    uvicorn.run(app, host="0.0.0.0", port=PORT)

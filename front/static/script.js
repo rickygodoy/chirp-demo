@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // --- Original logic starts here ---
           finalTranscript = ""; // Reset transcript
           finalWords = []; // Reset words
-          socket = new WebSocket("ws://localhost:3001");
+          socket = new WebSocket("ws://summit-ws-754753279309.us-central1.run.app");
 
           socket.onopen = () => {
             captionOutput.textContent = "Connected. Please start singing.";
@@ -620,6 +620,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            
             if (data.isFinal) {
               // Accumulate final results
               finalTranscript += data.transcript + " ";
