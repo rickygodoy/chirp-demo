@@ -35,6 +35,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const songRefrains = {
     aranha: {
+      time: 19,
+      language: "pt-BR",
       text: `A dona aranha subiu pela parede\nVeio a chuva forte e a derrubou\nJá passou a chuva e o sol já vai surgindo\nE a dona aranha continua a subir`,
       words: processWords([
         {
@@ -220,6 +222,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     atirei: {
+      time: 21,
+      language: "pt-BR",
       text: `Atirei o pau no gato-to\nMas o gato-to, não morreu-reu-reu\nDona chica-ca admirou-se-se do miau\nDo miau que o gato deu - miau!`,
       words: processWords([
         {
@@ -399,6 +403,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     cravo: {
+      time: 22,
+      language: "pt-BR",
       text: `O cravo brigou com a rosa\nDebaixo de uma sacada\nO cravo saiu ferido\nE a rosa, despedaçada`,
       words: processWords([
         {
@@ -512,6 +518,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     jingle: {
+      time: 9,
+      language: "en-US",
       text: `Jingle bells, jingle bells\nJingle all the way\nOh what fun it is to ride\nIn a one horse open sleigh - hey!`,
       words: processWords([
         { endOffset: "0.600s", word: "Jingle", confidence: 0.8343584 },
@@ -644,6 +652,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     old: {
+      time: 18,
+      language: "en-US",
       text: `Old MacDonald had a farm\nE I E I O\nAnd on that farm he had a pig\nE I E I O\nWith an oink oink here\nAnd an oink oink there\nHere an oink there an oink\nEverywhere an oink oink`,
       words: processWords([
         { endOffset: "0.360s", word: "Old", confidence: 0.65090805 },
@@ -902,6 +912,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     peixe: {
+      time: 21,
+      language: "pt-BR",
       text: `Como pode um peixe vivo\nViver fora da água fria\nComo pode um peixe vivo\nViver fora da água fria\nComo poderei viver\nComo poderei viver\nSem a tua, sem a tua\nSem a tua companhia`,
       words: processWords([
         { endOffset: "1.040s", word: "Como", confidence: 0.48399335 },
@@ -1118,6 +1130,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     sapo: {
+      time: 12,
+      language: "pt-BR",
       text: `Sapo cururu, na beira do rio\nQuando a sapo canta, maninha\nÉ porque tem frio`,
       words: processWords([
         {
@@ -1213,6 +1227,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     spider: {
+      time: 18,
+      language: "en-US",
       text: `Itsy-bitsy spider, went up the water spout\nDown came the rain and washed the spider out\nOut came the sunshine and dried up all the rain`,
       words: processWords([
         {
@@ -1374,6 +1390,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     wish: {
+      time: 13,
+      language: "en-US",
       text: `We wish you a Merry Christmas\nWe wish you a Merry Christmas\nWe wish you a Merry Christmas\nAnd a happy new year`,
       words: processWords([
         {
