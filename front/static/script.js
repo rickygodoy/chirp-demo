@@ -1,3 +1,6 @@
+// wsEndpoint = "summit-ws-754753279309.us-central1.run.app";
+wsEndpoint = "localhost:3001";
+
 document.addEventListener("DOMContentLoaded", () => {
   // --- Tab Switching Logic ---
   const tabLinks = document.querySelectorAll(".tab-link");
@@ -1848,8 +1851,10 @@ document.addEventListener("DOMContentLoaded", () => {
           // --- Original logic starts here ---
           finalTranscript = ""; // Reset transcript
           finalWords = []; // Reset words
+          const songKey = songSelect.dataset.value;
+          const language = songRefrains[songKey]?.language || "en-US"; // Default to en-US
           socket = new WebSocket(
-            "ws://summit-ws-754753279309.us-central1.run.app",
+            `ws://${wsEndpoint}?language_code=${language}`,
           );
 
           socket.onopen = () => {

@@ -18,9 +18,10 @@ from google.cloud.speech_v2 import (
 
 # --- Configuration ---
 PORT = 3001
-PROJECT_ID = "summit-demo-469118"
+# PROJECT_ID = "summit-demo-469118"
+PROJECT_ID = "rgodoy-sandbox"
 LOCATION = "us-central1"
-LANGUAGE_CODES = ["en-US"]
+
 RECOGNIZER_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/recognizers/_"
 
 # --- FastAPI App Initialization ---
@@ -37,7 +38,7 @@ def audio_request_generator(audio_queue: queue.Queue, recognizer, config):
             break
         yield StreamingRecognizeRequest(audio=chunk)
 
-def run_grpc_stream(audio_queue: queue.Queue, results_queue: asyncio.Queue):
+def run_grpc_stream(audio_queue: queue.Queue, results_queue: asyncio.Queue, language_code: str):
     """The Producer: runs the blocking gRPC stream and puts results in a queue."""
     try:
         streaming_config = StreamingRecognitionConfig(
@@ -47,7 +48,7 @@ def run_grpc_stream(audio_queue: queue.Queue, results_queue: asyncio.Queue):
                     sample_rate_hertz=16000,
                     audio_channel_count=1
                 ),
-                language_codes=LANGUAGE_CODES,
+                language_codes=[language_code],
                 features=RecognitionFeatures(
                     enable_word_time_offsets=True,
                     enable_word_confidence=True,
@@ -98,10 +99,10 @@ async def health_check():
     return {"status": "OK"}
 
 @app.websocket("/")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket, language_code: str = "en-US"):
     await websocket.accept()
-    print("WebSocket client connected.")
-    
+    print(f"WebSocket client connected with language_code: {language_code}")
+
     audio_queue = queue.Queue()       # Thread-safe queue for Client -> gRPC
     results_queue = asyncio.Queue() # Asyncio queue for gRPC -> Client
 
@@ -136,7 +137,7 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         # Run the blocking gRPC producer in a thread pool
         grpc_task = loop.run_in_executor(
-            None, run_grpc_stream, audio_queue, results_queue
+            None, run_grpc_stream, audio_queue, results_queue, language_code
         )
 
         # Run the asyncio producer and consumer
