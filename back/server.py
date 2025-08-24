@@ -18,8 +18,8 @@ from google.cloud.speech_v2 import (
 
 # --- Configuration ---
 PORT = 3001
-# PROJECT_ID = "summit-demo-469118"
-PROJECT_ID = "rgodoy-sandbox"
+PROJECT_ID = "summit-demo-469118"
+# PROJECT_ID = "rgodoy-sandbox"
 LOCATION = "us-central1"
 
 RECOGNIZER_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/recognizers/_"

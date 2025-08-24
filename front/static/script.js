@@ -1,7 +1,87 @@
-// wsEndpoint = "summit-ws-754753279309.us-central1.run.app";
-wsEndpoint = "localhost:3001";
+wsEndpoint = "summit-ws-754753279309.us-central1.run.app";
+// wsEndpoint = "localhost:3001";
 
 document.addEventListener("DOMContentLoaded", () => {
+  // --- High Score Logic ---
+  const HIGH_SCORES_KEY = "chirp-high-scores-v2";
+  const MAX_HIGH_SCORES = 15;
+
+  function getHighScores() {
+    try {
+      const scoresJSON = localStorage.getItem(HIGH_SCORES_KEY);
+      if (scoresJSON) {
+        return JSON.parse(scoresJSON);
+      }
+    } catch (e) {
+      console.error("Could not parse high scores from localStorage", e);
+      return getDefaultHighScores(); // Fallback
+    }
+    return getDefaultHighScores();
+  }
+
+  function saveHighScores(scores) {
+    try {
+      localStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(scores));
+    } catch (e) {
+      console.error("Could not save high scores to localStorage", e);
+    }
+  }
+
+  function getDefaultHighScores() {
+    // Return an empty array when no scores are in localStorage
+    return [];
+  }
+
+  function displayHighScores() {
+    const highScores = getHighScores();
+    const tableBody = document.getElementById("high-scores-body");
+    if (!tableBody) return; // Exit if table isn't on the page
+
+    tableBody.innerHTML = ""; // Clear existing scores
+
+    if (highScores.length === 0) {
+      const row = document.createElement("tr");
+      // Use colspan="3" to span all columns (Rank, Name, Score)
+      row.innerHTML = `<td colspan="3" class="placeholder">No stars identified yet.</td>`;
+      tableBody.appendChild(row);
+    } else {
+      highScores.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${entry.name}</td>
+        <td>${entry.score}</td>
+      `;
+        tableBody.appendChild(row);
+      });
+    }
+  }
+
+  function checkAndSaveHighScore(newScore) {
+    const highScores = getHighScores();
+    const lowestScore =
+      highScores.length < MAX_HIGH_SCORES
+        ? 0
+        : highScores[MAX_HIGH_SCORES - 1].score;
+
+    if (newScore > lowestScore) {
+      const name = prompt(
+        `You got a high score of ${newScore}! Enter your name:`,
+      );
+      if (name) {
+        const newEntry = { name: name, score: newScore };
+        highScores.push(newEntry);
+        highScores.sort((a, b) => b.score - a.score); // Sort descending
+        const updatedHighScores = highScores.slice(0, MAX_HIGH_SCORES); // Keep top 15
+        saveHighScores(updatedHighScores);
+        displayHighScores(); // Update the table
+      }
+    }
+  }
+
+  // Display scores on initial load
+  displayHighScores();
+
   // --- Tab Switching Logic ---
   const tabLinks = document.querySelectorAll(".tab-link");
   const tabPanes = document.querySelectorAll(".tab-pane");
@@ -1686,6 +1766,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const originalRefrain = songRefrains[currentSongKey];
             if (originalRefrain && finalWords.length > 0) {
               const score = calculateScore(finalWords, originalRefrain);
+              checkAndSaveHighScore(score.overallScore);
               let scoreText =
                 `Score: ${score.overallScore}/100\n` +
                 ` (Accuracy: ${score.accuracyScore}, Confidence: ${score.confidenceScore}`;
