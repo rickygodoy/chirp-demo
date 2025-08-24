@@ -31,14 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return words.map((w) => ({
       ...w,
       word: normalizeText(w.word),
-      startTime: parseFloat(w.startOffset),
-      endTime: parseFloat(w.endOffset),
+      startTime: parseFloat(w.startOffset || "0s"),
+      endTime: parseFloat(w.endOffset || "0s"),
     }));
   }
 
   const songRefrains = {
     aranha: {
-      time: 19,
+      time: 18,
       language: "pt-BR",
       text: `A dona aranha subiu pela parede\nVeio a chuva forte e a derrubou\nJá passou a chuva e o sol já vai surgindo\nE a dona aranha continua a subir`,
       words: processWords([
@@ -225,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     atirei: {
-      time: 21,
+      time: 20,
       language: "pt-BR",
       text: `Atirei o pau no gato-to\nMas o gato-to, não morreu-reu-reu\nDona chica-ca admirou-se-se do miau\nDo miau que o gato deu - miau!`,
       words: processWords([
@@ -406,7 +406,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     cravo: {
-      time: 22,
+      time: 21,
       language: "pt-BR",
       text: `O cravo brigou com a rosa\nDebaixo de uma sacada\nO cravo saiu ferido\nE a rosa, despedaçada`,
       words: processWords([
@@ -521,11 +521,16 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     jingle: {
-      time: 9,
+      time: 7,
       language: "en-US",
       text: `Jingle bells, jingle bells\nJingle all the way\nOh what fun it is to ride\nIn a one horse open sleigh - hey!`,
       words: processWords([
-        { endOffset: "0.600s", word: "Jingle", confidence: 0.8343584 },
+        {
+          startOffset: "0s",
+          endOffset: "0.600s",
+          word: "Jingle",
+          confidence: 0.8343584,
+        },
         {
           startOffset: "0.600s",
           endOffset: "1.200s",
@@ -655,11 +660,16 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     old: {
-      time: 18,
+      time: 17,
       language: "en-US",
       text: `Old MacDonald had a farm\nE I E I O\nAnd on that farm he had a pig\nE I E I O\nWith an oink oink here\nAnd an oink oink there\nHere an oink there an oink\nEverywhere an oink oink`,
       words: processWords([
-        { endOffset: "0.360s", word: "Old", confidence: 0.65090805 },
+        {
+          startOffset: "0s",
+          endOffset: "0.360s",
+          word: "Old",
+          confidence: 0.65090805,
+        },
         {
           startOffset: "0.360s",
           endOffset: "1.280s",
@@ -915,7 +925,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     peixe: {
-      time: 21,
+      time: 20,
       language: "pt-BR",
       text: `Como pode um peixe vivo\nViver fora da água fria\nComo pode um peixe vivo\nViver fora da água fria\nComo poderei viver\nComo poderei viver\nSem a tua, sem a tua\nSem a tua companhia`,
       words: processWords([
@@ -1133,9 +1143,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     sapo: {
-      time: 12,
+      time: 10,
       language: "pt-BR",
-      text: `Sapo cururu, na beira do rio\nQuando a sapo canta, maninha\nÉ porque tem frio`,
+      text: `Sapo cururu, na beira do rio\nQuando o sapo canta, maninha\nÉ porque tem frio`,
       words: processWords([
         {
           startOffset: "0.320s",
@@ -1182,7 +1192,7 @@ document.addEventListener("DOMContentLoaded", () => {
         {
           startOffset: "5.280s",
           endOffset: "5.320s",
-          word: "a",
+          word: "o",
           confidence: 0.7598844,
         },
         {
@@ -1230,7 +1240,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ]),
     },
     spider: {
-      time: 18,
+      time: 17,
       language: "en-US",
       text: `Itsy-bitsy spider, went up the water spout\nDown came the rain and washed the spider out\nOut came the sunshine and dried up all the rain`,
       words: processWords([
@@ -1548,16 +1558,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectedText = songSelectTrigger.querySelector("span");
 
   // Timer and Progress Bar elements
-  const timerContainer = document.getElementById("timer-container");
   const countdownText = document.getElementById("countdown-text");
   const progressBar = document.getElementById("progress-bar");
 
   // Timer variables
   let countdownInterval;
-  const RECORDING_DURATION = 15; // seconds
-
-  // Set initial state for the timer
-  countdownText.textContent = RECORDING_DURATION;
+  let recordingDuration = 15; // Default duration
+  let currentSongKey = null; // To hold the currently selected song key
 
   // By default, the button is disabled.
   captionButton.disabled = true;
@@ -1577,23 +1584,24 @@ document.addEventListener("DOMContentLoaded", () => {
       // Update the trigger text and stored value
       selectedText.textContent = option.textContent;
       songSelect.dataset.value = option.dataset.value;
+      currentSongKey = option.dataset.value; // Update the current song key
 
-      // Enable the button
-      captionButton.disabled = false;
+      const songData = songRefrains[currentSongKey];
 
-      const songKey = option.dataset.value;
-      const refrainData = songRefrains[songKey];
+      // Set the recording duration and update UI
+      recordingDuration = songData.time || 15;
+      countdownText.textContent = recordingDuration;
 
-      // Check if it's the new object format or the old string
-      const refrainText =
-        typeof refrainData === "object" ? refrainData.text : refrainData;
-
-      if (refrainText) {
-        refrainOutput.textContent = refrainText;
+      // Update the refrain text display
+      if (songData && songData.text) {
+        refrainOutput.textContent = songData.text;
         refrainOutput.classList.add("visible");
       } else {
         refrainOutput.classList.remove("visible");
       }
+
+      // Enable the button
+      captionButton.disabled = false;
 
       // Close the dropdown
       songSelect.classList.remove("open");
@@ -1799,11 +1807,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startRecordingTimer() {
-    let remainingTime = RECORDING_DURATION;
+    let remainingTime = recordingDuration;
 
     const updateTimer = () => {
       countdownText.textContent = remainingTime;
-      const progressPercentage = (remainingTime / RECORDING_DURATION) * 100;
+      const progressPercentage = (remainingTime / recordingDuration) * 100;
       progressBar.style.width = `${progressPercentage}%`;
     };
 
@@ -1826,7 +1834,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function stopRecordingTimer() {
     clearInterval(countdownInterval);
     progressBar.style.width = "100%"; // Reset for next time
-    countdownText.textContent = RECORDING_DURATION;
+    countdownText.textContent = recordingDuration;
   }
 
   captionButton.addEventListener("click", async () => {
@@ -1851,10 +1859,11 @@ document.addEventListener("DOMContentLoaded", () => {
           // --- Original logic starts here ---
           finalTranscript = ""; // Reset transcript
           finalWords = []; // Reset words
-          const songKey = songSelect.dataset.value;
-          const language = songRefrains[songKey]?.language || "en-US"; // Default to en-US
+          const language = songRefrains[currentSongKey]?.language || "en-US"; // Default to en-US
+          const wsProtocol =
+            window.location.protocol === "https:" ? "wss://" : "ws://";
           socket = new WebSocket(
-            `ws://${wsEndpoint}?language_code=${language}`,
+            `${wsProtocol}${wsEndpoint}?language_code=${language}`,
           );
 
           socket.onopen = () => {
@@ -1915,8 +1924,7 @@ document.addEventListener("DOMContentLoaded", () => {
             captionButton.disabled = false; // Re-enable button
 
             // --- Perform Scoring ---
-            const songKey = songSelect.dataset.value;
-            const originalRefrain = songRefrains[songKey];
+            const originalRefrain = songRefrains[currentSongKey];
             if (originalRefrain && finalWords.length > 0) {
               const score = calculateScore(finalWords, originalRefrain);
               let scoreText =
