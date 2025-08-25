@@ -1818,12 +1818,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Game elements
   const listenBtn = document.getElementById('listen-btn');
+  const checkBtn = document.getElementById('check-btn');
   const feedbackEl = document.getElementById('feedback');
   const audioPlayer = document.getElementById('audio-player');
+  const answerInput = document.getElementById('answer-input');
+  const playAgainBtn = document.getElementById('play-again-btn');
 
-  listenBtn.addEventListener("click", playsound)
+  let currentPhrase = '';
+  let playerName = '';
+  let isFetching = false;
+  let roundTimerStart = 0;
+  let recentRounds = [];
+
+  listenBtn.addEventListener("click", playsound);
+  checkBtn.addEventListener('click', checkAnswer);
+  playAgainBtn.addEventListener('click', resetGame);
+
+  const levenshtein = (s1, s2) => {
+      s1 = s1.toLowerCase();
+      s2 = s2.toLowerCase();
+      const costs = [];
+      for (let i = 0; i <= s1.length; i++) {
+          let lastValue = i;
+          for (let j = 0; j <= s2.length; j++) {
+              if (i === 0) costs[j] = j;
+              else if (j > 0) {
+                  let newValue = costs[j - 1];
+                  if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                      newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                  }
+                  costs[j - 1] = lastValue;
+                  lastValue = newValue;
+              }
+          }
+          if (i > 0) costs[s2.length] = lastValue;
+      }
+      return costs[s2.length];
+  };
 
   async function playsound() {
+    listenBtn.disabled = true;
+    listenBtn.textContent = 'Carregando...';
+
     try {
           const response = await fetch('/api/new-phrase');
           if (!response.ok) throw new Error('Network response was not ok');
@@ -1835,8 +1871,8 @@ document.addEventListener("DOMContentLoaded", () => {
           feedbackEl.textContent = 'Erro ao buscar frase.';
       } finally {
           isFetching = false;
-          //listenBtn.disabled = false;
-          //listenBtn.textContent = 'Ouvir a Frase';
+          listenBtn.disabled = false;
+          listenBtn.textContent = 'Ouvir a Frase';
       }
   }
 
@@ -1854,7 +1890,47 @@ document.addEventListener("DOMContentLoaded", () => {
         audioPlayer.play();
       } catch (error) {
         console.error('Error synthesizing audio:', error);
-        //feedbackEl.textContent = 'Erro ao gerar áudio.';
+        feedbackEl.textContent = 'Erro ao gerar áudio.';
       }
+    }
+
+    audioPlayer.onended = () => {
+        roundTimerStart = new Date();
+        answerInput.disabled = false;
+        checkBtn.disabled = false;
+        answerInput.focus();
+    };
+
+    function checkAnswer() {
+        const responseTime = (new Date() - roundTimerStart) / 1000;
+        const userAnswer = answerInput.value;
+
+        const distance = levenshtein(userAnswer, currentPhrase);
+        const accuracyScore = Math.max(0, 80 - (distance * 5));
+        const timeBonus = Math.max(0, 20 - (responseTime * 2));
+        const roundScore = Math.round(accuracyScore + timeBonus);
+
+        //recentRounds.push({ name: playerName, score: roundScore });
+        //saveRoundsToStorage();
+        //updateRoundsDisplay();
+
+        feedbackEl.innerHTML = `
+            <span class="round-score">Sua pontuação: ${roundScore}</span>
+            <span class="breakdown">
+                (Precisão: ${Math.round(accuracyScore)} + Bônus de Tempo: ${Math.round(timeBonus)})
+            </span>
+        `;
+
+        listenBtn.disabled = true;
+        checkBtn.disabled = true;
+        answerInput.disabled = true;
+        playAgainBtn.style.display = 'block';
+    }
+
+    function resetGame() {
+        feedbackEl.innerHTML = '';
+        answerInput.value = '';
+        playAgainBtn.style.display = 'none';
+        listenBtn.disabled = false;
     }
 });

@@ -92,6 +92,8 @@ def synthesize_speech():
     """Gera áudio a partir de um texto usando Google TTS."""
     if not tts_client:
         return jsonify({"error": "TTS Client not initialized"}), 500
+    
+    print(tts_client)
 
     data = request.get_json()
     text = data.get("text")
