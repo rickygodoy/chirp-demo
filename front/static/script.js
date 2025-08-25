@@ -1815,4 +1815,46 @@ document.addEventListener("DOMContentLoaded", () => {
       // The socket.onclose event will handle the final scoring and UI reset.
     }
   });
+
+  // Game elements
+  const listenBtn = document.getElementById('listen-btn');
+  const feedbackEl = document.getElementById('feedback');
+  const audioPlayer = document.getElementById('audio-player');
+
+  listenBtn.addEventListener("click", playsound)
+
+  async function playsound() {
+    try {
+          const response = await fetch('/api/new-phrase');
+          if (!response.ok) throw new Error('Network response was not ok');
+          const data = await response.json();
+          currentPhrase = data.phrase;
+          synthesizeAndPlay(currentPhrase);
+      } catch (error) {
+          console.error('Error fetching new phrase:', error);
+          feedbackEl.textContent = 'Erro ao buscar frase.';
+      } finally {
+          isFetching = false;
+          //listenBtn.disabled = false;
+          //listenBtn.textContent = 'Ouvir a Frase';
+      }
+  }
+
+  async function synthesizeAndPlay(text) {
+      try {
+        const response = await fetch('/api/synthesize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text }),
+        });
+        if (!response.ok) throw new Error('Failed to synthesize audio');
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        audioPlayer.src = audioUrl;
+        audioPlayer.play();
+      } catch (error) {
+        console.error('Error synthesizing audio:', error);
+        //feedbackEl.textContent = 'Erro ao gerar áudio.';
+      }
+    }
 });
