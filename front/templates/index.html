@@ -15,18 +15,22 @@
   </head>
   <body>
     <header>
-      <h1>Chirp Model Showcase</h1>
+      <div class="header-container">
+        <div class="logo">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+        </div>
+        <h1>Chirp Model Showcase</h1>
+        <nav class="header-nav">
+          <button class="tab-link active" data-tab="welcome">Welcome</button>
+          <button class="tab-link" data-tab="singing-contest">
+            Singing Contest
+          </button>
+          <button class="tab-link" data-tab="learning-contest">
+            Learning Contest
+          </button>
+        </nav>
+      </div>
     </header>
-
-    <nav class="tab-navigation">
-      <button class="tab-link active" data-tab="welcome">Welcome</button>
-      <button class="tab-link" data-tab="singing-contest">
-        Singing Contest
-      </button>
-      <button class="tab-link" data-tab="learning-contest">
-        Learning Contest
-      </button>
-    </nav>
 
     <main class="main-content">
       <div id="welcome" class="tab-pane active">
