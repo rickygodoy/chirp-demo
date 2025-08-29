@@ -4,7 +4,7 @@ wsEndpoint = "summit-ws-754753279309.us-central1.run.app";
 document.addEventListener("DOMContentLoaded", () => {
   // --- High Score Logic ---
   const HIGH_SCORES_KEY = "chirp-high-scores-v2";
-  const MAX_HIGH_SCORES = 15;
+  const MAX_HIGH_SCORES = 10;
 
   function getHighScores() {
     try {
@@ -57,30 +57,77 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function checkAndSaveHighScore(newScore) {
+  // Display scores on initial load
+  displayHighScores();
+
+  // --- Modal Logic ---
+  const modal = document.getElementById("highscore-modal");
+  const modalScoreText = document.getElementById("modal-score-text");
+  const playerNameInput = document.getElementById("player-name-input");
+  const saveButton = document.getElementById("modal-save-button");
+  const cancelButton = document.getElementById("modal-cancel-button");
+
+  let resolvePromise = null;
+
+  function showModal(score) {
+    modalScoreText.textContent = `You scored ${score} points! Enter your name to save your score.`;
+    playerNameInput.value = "";
+    modal.style.display = "flex";
+    playerNameInput.focus();
+    return new Promise((resolve) => {
+      resolvePromise = resolve;
+    });
+  }
+
+  function hideModal() {
+    modal.style.display = "none";
+  }
+
+  function handleSave() {
+    const name = playerNameInput.value.trim();
+    if (name && resolvePromise) {
+      resolvePromise(name);
+    } else if (resolvePromise) {
+      resolvePromise(null); // Resolve with null if name is empty
+    }
+    hideModal();
+    resolvePromise = null; // Reset promise resolver
+  }
+
+  function handleCancel() {
+    if (resolvePromise) {
+      resolvePromise(null); // Resolve with null if cancelled
+    }
+    hideModal();
+    resolvePromise = null;
+  }
+
+  saveButton.addEventListener("click", handleSave);
+  cancelButton.addEventListener("click", handleCancel);
+  // Also allow submitting with Enter key
+  playerNameInput.addEventListener("keyup", (event) => {
+    if (event.key === "Enter") {
+      handleSave();
+    }
+  });
+
+  async function checkAndSaveHighScore(newScore) {
     const highScores = getHighScores();
     const lowestScore =
-      highScores.length < MAX_HIGH_SCORES
-        ? 0
-        : highScores[MAX_HIGH_SCORES - 1].score;
+      highScores.length < MAX_HIGH_SCORES ? 0 : highScores[highScores.length - 1].score;
 
     if (newScore > lowestScore) {
-      const name = prompt(
-        `You got a high score of ${newScore}! Enter your name:`,
-      );
+      const name = await showModal(newScore); // Replaces prompt
       if (name) {
         const newEntry = { name: name, score: newScore };
         highScores.push(newEntry);
         highScores.sort((a, b) => b.score - a.score); // Sort descending
-        const updatedHighScores = highScores.slice(0, MAX_HIGH_SCORES); // Keep top 15
+        const updatedHighScores = highScores.slice(0, MAX_HIGH_SCORES);
         saveHighScores(updatedHighScores);
         displayHighScores(); // Update the table
       }
     }
   }
-
-  // Display scores on initial load
-  displayHighScores();
 
   // --- Tab Switching Logic ---
   const tabLinks = document.querySelectorAll(".tab-link");

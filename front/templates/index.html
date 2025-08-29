@@ -35,13 +35,12 @@
     <main class="main-content">
       <div id="welcome" class="tab-pane active">
         <div class="welcome-container">
-          <h2>Welcome to the Chirp Model Showcase!</h2>
+          <h2>Welcome to the Chirp Model Showcase</h2>
           <p>
-            This is an interactive demonstration of Google's Chirp model for
-            speech-to-text.
+            This is an interactive demonstration of Google's Chirp model
           </p>
           <p>
-            Navigate to the <strong>Singing Contest</strong> tab to try it out.
+            Navigate to the <strong>Singing Contest</strong> or <strong>Learning Contest</strong> tab to try it out.
           </p>
         </div>
       </div>
@@ -165,6 +164,19 @@
         </div>
       </div>
     </main>
+
+    <!-- Modal for High Score Name Input -->
+    <div id="highscore-modal" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+        <h2>New High Score!</h2>
+        <p id="modal-score-text"></p>
+        <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20">
+        <div class="modal-buttons">
+          <button id="modal-save-button">Save</button>
+          <button id="modal-cancel-button">Cancel</button>
+        </div>
+      </div>
+    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
