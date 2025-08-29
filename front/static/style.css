@@ -419,3 +419,20 @@ button:disabled:hover {
   font-size: 1em;
   box-sizing: border-box; /* Garante que o padding não afete a largura total */
 }
+
+#final-score-output {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #e8f0fe;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: normal;
+  color: #1a73e8;
+  border: 2px solid #1a73e8;
+  display: none;
+}
+
+#final-score-output .score-value {
+  font-weight: bold;
+}

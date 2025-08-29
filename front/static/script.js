@@ -1437,6 +1437,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const captionButton = document.getElementById("caption-button");
   const captionOutput = document.getElementById("caption-output");
+  const finalScoreOutput = document.getElementById("final-score-output");
   const refrainOutput = document.getElementById("refrain-output");
   const songSelect = document.querySelector(".custom-select");
   const songSelectTrigger = songSelect.querySelector(".select-trigger");
@@ -1725,6 +1726,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   captionButton.addEventListener("click", async () => {
     if (captionButton.textContent === start_singing) {
+            // Hide score from previous rounds
+      finalScoreOutput.style.display = "none";
       captionButton.disabled = true; // Disable button during countdown
       let countdown = 3;
       captionOutput.textContent = `Get ready... ${countdown}`;
@@ -1812,20 +1815,22 @@ document.addEventListener("DOMContentLoaded", () => {
             // --- Perform Scoring ---
             const originalRefrain = songRefrains[currentSongKey];
             if (originalRefrain && finalWords.length > 0) {
-              const score = calculateScore(finalWords, originalRefrain);
+                            const score = calculateScore(finalWords, originalRefrain);
               checkAndSaveHighScore(score.overallScore);
-              let scoreText =
-                `Score: ${score.overallScore}/100\n` +
-                ` (Accuracy: ${score.accuracyScore}, Confidence: ${score.confidenceScore}`;
+              let scoreHtml =
+                `Score: <span class="score-value">${score.overallScore}/100</span><br>` +
+                `(Accuracy: <span class="score-value">${score.accuracyScore}</span>, Confidence: <span class="score-value">${score.confidenceScore}</span>`;
 
               if (score.timingScore !== undefined) {
-                scoreText += `, Timing: ${score.timingScore})`;
+                scoreHtml += `, Timing: <span class="score-value">${score.timingScore}</span>)`;
               } else if (score.rhythmScore !== undefined) {
-                scoreText += `, Rhythm: ${score.rhythmScore})`;
+                scoreHtml += `, Rhythm: <span class="score-value">${score.rhythmScore}</span>)`;
               } else {
-                scoreText += `)`;
+                scoreHtml += `)`;
               }
-              captionOutput.textContent = `${finalTranscript}\n\n${scoreText}`;
+              captionOutput.textContent = finalTranscript;
+              finalScoreOutput.innerHTML = scoreHtml; // Use innerHTML to render spans
+              finalScoreOutput.style.display = "block"; // Show the container
             } else {
               captionOutput.textContent = `${finalTranscript || "No audio detected :("}`;
             }
