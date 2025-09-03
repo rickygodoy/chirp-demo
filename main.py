@@ -27,7 +27,7 @@ from google.cloud.speech_v2 import (
 from pydantic import BaseModel
 
 # --- Configuration ---
-PROJECT_ID = "rgodoy-sandbox"
+PROJECT_ID = os.environ["GOOGLE_CLOUD_PROJECT"]
 LOCATION = "us-central1"
 RECOGNIZER_NAME = f"projects/{PROJECT_ID}/locations/{LOCATION}/recognizers/_"
 

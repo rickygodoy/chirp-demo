@@ -4,7 +4,10 @@
 set -e
 
 # --- Configuration ---
-PROJECT_ID="${GOOGLE_CLOUD_PROJECT:-rgodoy-sandbox}"
+PROJECT_ID="${GOOGLE_CLOUD_PROJECT}"
+if [ -z "$PROJECT_ID" ]; then
+  read -p "Enter the GCP Project ID: " PROJECT_ID
+fi
 SERVICE_NAME="chirp-demo"
 REGION="us-central1"
 # ---
@@ -19,6 +22,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --region "$REGION" \
   --allow-unauthenticated \
   --session-affinity \
+  --set-env-vars="GOOGLE_CLOUD_PROJECT=$PROJECT_ID" \
   --project "$PROJECT_ID"
 
 echo "Deployment complete. Access your service at the URL provided above."
