@@ -6,7 +6,7 @@
     <title>Chirp Demo</title>
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
+      href="{{ url_for('static', path='style.css') }}"
     />
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
@@ -17,7 +17,7 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+          <img src="{{ url_for('static', path='logo.png') }}" alt="Logo">
         </div>
         <h1>Chirp Model Showcase</h1>
         <nav class="header-nav">
@@ -179,6 +179,6 @@
       </div>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', path='script.js') }}"></script>
   </body>
 </html>

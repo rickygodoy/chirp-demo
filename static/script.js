@@ -1,6 +1,3 @@
-wsEndpoint = "summit-ws-754753279309.us-central1.run.app";
-// wsEndpoint = "localhost:3001";
-
 document.addEventListener("DOMContentLoaded", () => {
   // --- High Score Logic ---
   const HIGH_SCORES_KEY = "chirp-high-scores-v2";
@@ -1749,11 +1746,9 @@ document.addEventListener("DOMContentLoaded", () => {
           finalTranscript = ""; // Reset transcript
           finalWords = []; // Reset words
           const language = songRefrains[currentSongKey]?.language || "en-US"; // Default to en-US
-          const wsProtocol =
-            window.location.protocol === "https:" ? "wss://" : "ws://";
-          socket = new WebSocket(
-            `${wsProtocol}${wsEndpoint}?language_code=${language}`,
-          );
+          const wsProtocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+          const wsUrl = `${wsProtocol}${window.location.host}/listen?language_code=${language}`;
+          socket = new WebSocket(wsUrl);
 
           socket.onopen = () => {
             captionOutput.textContent = "Connected. Please start singing.";

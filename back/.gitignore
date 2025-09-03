@@ -1,5 +1,0 @@
-*.py[cod]
-*.egg
-build
-htmlcov
-venv/
