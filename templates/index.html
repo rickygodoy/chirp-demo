@@ -4,10 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chirp Demo</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', path='style.css') }}"
-    />
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}" />
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
       rel="stylesheet"
@@ -17,7 +14,7 @@
     <header>
       <div class="header-container">
         <div class="logo">
-          <img src="{{ url_for('static', path='logo.png') }}" alt="Logo">
+          <img src="{{ url_for('static', path='logo.png') }}" alt="Logo" />
         </div>
         <h1>Chirp Model Showcase</h1>
         <nav class="header-nav">
@@ -36,11 +33,10 @@
       <div id="welcome" class="tab-pane active">
         <div class="welcome-container">
           <h2>Welcome to the Chirp Model Showcase</h2>
+          <p>This is an interactive demonstration of Google's Chirp model</p>
           <p>
-            This is an interactive demonstration of Google's Chirp model
-          </p>
-          <p>
-            Navigate to the <strong>Singing Contest</strong> or <strong>Learning Contest</strong> tab to try it out.
+            Navigate to the <strong>Singing Contest</strong> or
+            <strong>Learning Contest</strong> tab to try it out.
           </p>
         </div>
       </div>
@@ -79,9 +75,9 @@
                   </div>
                   <div class="options">
                     <div class="option" data-value="aranha">A dona aranha</div>
-                    <div class="option" data-value="atirei">
-                      Atirei o pau no gato
-                    </div>
+                    <!-- <div class="option" data-value="atirei">
+                                          Atirei o pau no gato
+                                        </div> -->
                     <div class="option" data-value="cravo">
                       Cravo brigou com a rosa
                     </div>
@@ -137,7 +133,7 @@
               <p class="prompt">
                 Press 'Play Sentence' and write what you hear! Good Luck!
               </p>
-               <audio id="audio-player" style="display: none;"></audio>
+              <audio id="audio-player" style="display: none"></audio>
               <button id="listen-btn">Play Sentence</button>
 
               <div class="answer-section">
@@ -153,10 +149,11 @@
                 <!-- Feedback da rodada aparecerá aqui -->
               </div>
 
-              <button id="play-again-btn" style="display: none;">Jogar Novamente</button>
+              <button id="play-again-btn" style="display: none">
+                Jogar Novamente
+              </button>
             </div>
           </div>
-
 
           <aside class="leaderboard-card">
             <h2>Highscores</h2>
@@ -167,11 +164,16 @@
     </main>
 
     <!-- Modal for High Score Name Input -->
-    <div id="highscore-modal" class="modal-overlay" style="display: none;">
+    <div id="highscore-modal" class="modal-overlay" style="display: none">
       <div class="modal-content">
         <h2>New High Score!</h2>
         <p id="modal-score-text"></p>
-        <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20">
+        <input
+          type="text"
+          id="player-name-input"
+          placeholder="Enter your name"
+          maxlength="20"
+        />
         <div class="modal-buttons">
           <button id="modal-save-button">Save</button>
           <button id="modal-cancel-button">Cancel</button>
