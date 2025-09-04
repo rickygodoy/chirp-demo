@@ -4,11 +4,11 @@
 set -e
 
 # --- Configuration ---
-PROJECT_ID="${GOOGLE_CLOUD_PROJECT}"
+PROJECT_ID="summit-demo-469118"
 if [ -z "$PROJECT_ID" ]; then
   read -p "Enter the GCP Project ID: " PROJECT_ID
 fi
-SERVICE_NAME="chirp-demo"
+SERVICE_NAME="summit-demo"
 REGION="us-central1"
 # ---
 
