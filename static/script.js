@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const HIGH_SCORES_KEY = "chirp-high-scores-v2";
   const MAX_HIGH_SCORES = 10;
 
+  const HIGH_SCORES_KEY_LEARNING = "chirp-high-scores-learning";
+
   function getHighScores() {
     try {
       const scoresJSON = localStorage.getItem(HIGH_SCORES_KEY);
@@ -22,6 +24,27 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       console.error("Could not save high scores to localStorage", e);
     }
+  }
+
+  function saveHighScoresLearning(scores) {
+    try {
+      localStorage.setItem(HIGH_SCORES_KEY_LEARNING, JSON.stringify(scores));
+    } catch (e) {
+      console.error("Could not save high scores to localStorage", e);
+    }
+  }
+
+  function getHighScoresLearning() {
+    try {
+      const scoresJSON = localStorage.getItem(HIGH_SCORES_KEY_LEARNING);
+      if (scoresJSON) {
+        return JSON.parse(scoresJSON);
+      }
+    } catch (error) {
+      console.error("Could not parse high scores from localStorage", e);
+      return getDefaultHighScores(); // Fallback
+    }
+    return getDefaultHighScores();
   }
 
   function getDefaultHighScores() {
@@ -54,8 +77,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function displayHighScoresLearning() {
+    const highScores = getHighScoresLearning();
+    const tableBody = document.getElementById("high-scores-body-learning");
+
+    if (!tableBody) return; // Exit if table isn't on the page
+
+    tableBody.innerHTML = ""; // Clear existing scores
+
+    if (highScores.length === 0) {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="3" class="placeholder">No players identified yet.</td>`;
+      tableBody.appendChild(row);
+    } else {
+      highScores.forEach((entry, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${entry.name}</td>
+        <td>${entry.score}</td>
+      `;
+        tableBody.appendChild(row);
+      });
+    } 
+  }
+
   // Display scores on initial load
   displayHighScores();
+  displayHighScoresLearning();
 
   // --- Modal Logic ---
   const modal = document.getElementById("highscore-modal");
@@ -63,6 +112,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const playerNameInput = document.getElementById("player-name-input");
   const saveButton = document.getElementById("modal-save-button");
   const cancelButton = document.getElementById("modal-cancel-button");
+
+  const modalLearning = document.getElementById("highscore-modal-learning");
+  const modalScoreTextLearning = document.getElementById("modal-score-text-learning");
+  const playerNameInputLearning = document.getElementById("player-name-input-learning");
+  const saveButtonLearning = document.getElementById("modal-save-button-learning");
+  const cancelButtonLearning = document.getElementById("modal-cancel-button-learning");
+  const scoreLearningInput = document.getElementById("score-learning");
+
 
   let resolvePromise = null;
 
@@ -91,6 +148,14 @@ document.addEventListener("DOMContentLoaded", () => {
     resolvePromise = null; // Reset promise resolver
   }
 
+  function handleSavelearning() {
+    const name = playerNameInputLearning.value.trim();
+    const score = scoreLearningInput.value.trim();
+    checkAndSaveHighScoreLearning(score, name)
+    modalLearning.style.display = "none";
+    resolvePromise = null;
+  }
+
   function handleCancel() {
     if (resolvePromise) {
       resolvePromise(null); // Resolve with null if cancelled
@@ -99,8 +164,20 @@ document.addEventListener("DOMContentLoaded", () => {
     resolvePromise = null;
   }
 
+  function handleCancelLearning() {
+    if (resolvePromise) {
+      resolvePromise(null); // Resolve with null if cancelled
+    }
+    modalLearning.style.display = "none";
+    resolvePromise = null;
+  }
+
   saveButton.addEventListener("click", handleSave);
   cancelButton.addEventListener("click", handleCancel);
+
+  saveButtonLearning.addEventListener("click", handleSavelearning);
+  cancelButtonLearning.addEventListener("click", handleCancelLearning)
+
   // Also allow submitting with Enter key
   playerNameInput.addEventListener("keyup", (event) => {
     if (event.key === "Enter") {
@@ -123,6 +200,21 @@ document.addEventListener("DOMContentLoaded", () => {
         saveHighScores(updatedHighScores);
         displayHighScores(); // Update the table
       }
+    }
+  }
+
+  function checkAndSaveHighScoreLearning(newScore, name) {
+    const highScores = getHighScoresLearning();
+    const lowestScore =
+      highScores.length < MAX_HIGH_SCORES ? 0 : highScores[highScores.length - 1].score;
+  
+    if (newScore > lowestScore) {
+        const newEntry = { name: name, score: newScore };
+        highScores.push(newEntry);
+        highScores.sort((a, b) => b.score - a.score); // Sort descending
+        const updatedHighScores = highScores.slice(0, MAX_HIGH_SCORES);
+        saveHighScoresLearning(updatedHighScores);
+        displayHighScoresLearning(); // Update the table
     }
   }
 
@@ -1957,10 +2049,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const timeBonus = Math.max(0, 20 - (responseTime * 2));
         const roundScore = Math.round(accuracyScore + timeBonus);
 
-        //recentRounds.push({ name: playerName, score: roundScore });
-        //saveRoundsToStorage();
-        //updateRoundsDisplay();
-
         feedbackEl.innerHTML = `
             <span class="round-score">Sua pontuação: ${roundScore}</span>
             <span class="breakdown">
@@ -1972,6 +2060,14 @@ document.addEventListener("DOMContentLoaded", () => {
         checkBtn.disabled = true;
         answerInput.disabled = true;
         playAgainBtn.style.display = 'block';
+
+        const scoreLearning = Math.round(accuracyScore)  + Math.round(timeBonus);
+
+        modalScoreTextLearning.textContent = `You scored ${scoreLearning} points! Enter your name to save your score.`;
+        scoreLearningInput.value = scoreLearning;
+        playerNameInputLearning.value = "";
+        modalLearning.style.display = "flex";
+        playerNameInputLearning.focus();
     }
 
     function resetGame() {

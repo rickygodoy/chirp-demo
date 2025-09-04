@@ -159,8 +159,20 @@
 
 
           <aside class="leaderboard-card">
+            <input id="score-learning" style="display: none;" />
             <h2>Highscores</h2>
-            <ol class="highscore-list"></ol>
+            <table class="highscore-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="high-scores-body-learning">
+                <!-- Scores will be inserted here by script.js -->
+              </tbody>
+            </table>
           </aside>
         </div>
       </div>
@@ -175,6 +187,19 @@
         <div class="modal-buttons">
           <button id="modal-save-button">Save</button>
           <button id="modal-cancel-button">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for High Score Name Input -->
+    <div id="highscore-modal-learning" class="modal-overlay" style="display: none;">
+      <div class="modal-content">
+        <h2>New High Score!</h2>
+        <p id="modal-score-text-learning"></p>
+        <input type="text" id="player-name-input-learning" placeholder="Enter your name" maxlength="20">
+        <div class="modal-buttons">
+          <button id="modal-save-button-learning">Save</button>
+          <button id="modal-cancel-button-learning">Cancel</button>
         </div>
       </div>
     </div>
