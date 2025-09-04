@@ -1,0 +1,8 @@
+# Combined dependencies from front and back ends
+fastapi
+uvicorn[standard]
+pydantic
+google-cloud-texttospeech
+google-cloud-speech>=2.20.0
+python-multipart
+Jinja2
