@@ -2076,4 +2076,28 @@ document.addEventListener("DOMContentLoaded", () => {
         playAgainBtn.style.display = 'none';
         listenBtn.disabled = false;
     }
+
+
+    /* Call Analysis Logic */
+
+    document.getElementById('analyze-sentiment-button').addEventListener('click', function() {
+    var analysisContainer = document.getElementById('analysis-container');
+    var loadingSpinner = document.getElementById('loading-spinner');
+    var analysisMessage = document.getElementById('analysis-message');
+    var analyzeButton = document.getElementById('analyze-sentiment-button');
+    var analysisTable = document.getElementById('analysis-table');
+
+
+    // Hide button and show loading spinner
+    analyzeButton.style.display = 'none';
+    analysisContainer.style.display = 'block';
+    loadingSpinner.style.display = 'block';
+    analysisMessage.style.display = 'none';
+
+    setTimeout(function() {
+      // Hide loading spinner and show message
+      loadingSpinner.style.display = 'none';
+      analysisTable.style.display = 'block';
+    }, 4000); 
+    });
 });

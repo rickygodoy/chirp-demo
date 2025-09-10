@@ -28,6 +28,9 @@
           <button class="tab-link" data-tab="learning-contest">
             Learning Contest
           </button>
+          <button class="tab-link" data-tab="sentiment-analysis">
+            Call Analysis
+          </button>
         </nav>
       </div>
     </header>
@@ -174,6 +177,77 @@
               </tbody>
             </table>
           </aside>
+        </div>
+      </div>
+
+      <div id="sentiment-analysis" class="tab-pane">
+        <div class="main-container">
+          <div class="content-card">
+              <h2>Call Analysis</h2>
+              <p>
+                In this demo you can see how Chirp can transcribe a Call
+                with multiple speakers.
+              </p>
+              <div class="interactive-area">
+                <p class="prompt">
+                  Press 'Play Audio' to listen the audio
+                </p>
+                <audio id="sentiment-audio" src="{{ url_for('static', path='call_br.wav') }}" controls style="width: 100%;"></audio>
+                <div class="sentiment-results"></div>
+                <button id="analyze-sentiment-button">Analyze Call</button>
+                <div id="analysis-container" style="display: none;">
+                  <div id="loading-spinner"></div>
+                  <p id="analysis-message" style="display: none;">
+                    <table id="analysis-table" style="display: none;">
+    <thead>
+      <tr>
+        <th>Speaker</th>
+        <th>Text</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>0</td>
+        <td>Meu nome é Bruno, bom dia. Em que posso ajudar?</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Bom dia. Eu tô ligando porque a minha fatura veio com 50 reais em serviços adicionais que eu não contratei e para piorar, viajei para Santos e Belo Horizonte na semana passada e fiquei totalmente sem sinal, um absurdo.</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Entendo perfeitamente a sua frustração, senhora. Peço desculpas pelo transtorno. Só um momento, por favor, vou verificar seu cadastro.</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Hum.</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Certo, localizei aqui. Realmente houve um erro de tarifação e registramos uma instabilidade na cobertura dessas regiões.</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>E então?</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Já estornei o valor cobrado indevidamente e pela falha no serviço, estou aplicando agora mesmo um desconto de 40% na sua próxima fatura como compensação. Pode ser?</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Nossa, 40%? Perfeito, assim sim. Resolvido então, muito obrigado.</td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Eu que agradeço o contato. Tenha um ótimo dia.</td>
+      </tr>
+    </tbody>
+  </table>
+                  </p>
+                </div>
+              </div>
+          </div>
         </div>
       </div>
     </main>
