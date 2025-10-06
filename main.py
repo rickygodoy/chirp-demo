@@ -548,26 +548,36 @@ async def high_scores():
 
 @app.post("/api/high-scores")
 async def add_high_score(request: SaveScoreRequest):
-    """Add a new high score from a cached score."""
+    """Add a new high score from a cached score, efficiently."""
     score_id = request.score_id
-    score = score_cache.get(score_id)
+    score_value = score_cache.get(score_id) # Renamed to avoid confusion
 
-    if score is None:
+    if score_value is None:
         return JSONResponse(
             content={"error": "Invalid or expired score ID."},
             status_code=400,
         )
 
-    # The score is valid, so we can proceed
-    high_score = HighScore(name=request.name, score=score)
+    # Invalidate the score_id immediately to prevent reuse
+    del score_cache[score_id]
 
     scores = get_high_scores()
-    scores.append(high_score.dict())
-    scores.sort(key=lambda s: s["score"], reverse=True)
-    save_high_scores(scores[:MAX_HIGH_SCORES])
 
-    # Invalidate the score_id after use
-    del score_cache[score_id]
+    # Check if the new score is high enough to be on the leaderboard
+    if len(scores) >= MAX_HIGH_SCORES:
+        # scores are sorted descending, so the last element is the lowest
+        lowest_high_score = scores[-1].get("score", 0)
+        if score_value <= lowest_high_score:
+            logging.info(f"Score {score_value} is not high enough to make the leaderboard.")
+            return JSONResponse(content={"status": "success, but score not high enough"})
+
+    # If the score is high enough or the board isn't full, add it
+    new_high_score = HighScore(name=request.name, score=score_value)
+    scores.append(new_high_score.dict())
+    scores.sort(key=lambda s: s["score"], reverse=True)
+    
+    # Save the updated, truncated list
+    save_high_scores(scores[:MAX_HIGH_SCORES])
 
     return JSONResponse(content={"status": "success"})
 
@@ -722,7 +732,7 @@ async def websocket_endpoint(websocket: WebSocket, language_code: str = "en-US")
                 break
             await websocket.send_text(json.dumps(message))
         # Don't close the connection here, let the client decide when to close.
-        # await websocket.close()
+        await websocket.close()
 
     loop = asyncio.get_running_loop()
 

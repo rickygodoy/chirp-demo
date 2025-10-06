@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    
     let currentScoreId = null; // To hold the ID of the last calculated score
 
     const HIGH_SCORES_KEY_LEARNING = "chirp-high-scores-learning";
@@ -202,15 +201,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     async function checkAndSaveHighScore(newScore) {
-    // Always show the modal to ask for the user's name.
-    // The backend will decide if the score makes it to the leaderboard.
-    const name = await showModal(newScore);
-    if (name) {
-        // Use the globally stored currentScoreId
-        await saveHighScore(name, currentScoreId);
-        await displayHighScores(); // Refresh the table from the server
+        // Always show the modal to ask for the user's name.
+        // The backend will decide if the score makes it to the leaderboard.
+        const name = await showModal(newScore);
+        if (name) {
+            // Use the globally stored currentScoreId
+            await saveHighScore(name, currentScoreId);
+            await displayHighScores(); // Refresh the table from the server
+        }
     }
-}
 
     function checkAndSaveHighScoreLearning(newScore, name) {
         const highScores = getHighScoresLearning();
@@ -441,6 +440,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     socket.onmessage = (event) => {
                         const data = JSON.parse(event.data);
 
+                        console.log("received", data);
+
                         if (data.isFinal) {
                             // Accumulate final results
                             finalTranscript += data.transcript + " ";
@@ -454,6 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     };
 
                     socket.onclose = async () => {
+                        console.log("closed");
                         stopRecordingTimer(); // Ensure timer is hidden on close
                         captionButton.textContent = start_singing;
                         captionButton.disabled = false; // Re-enable button
@@ -472,8 +474,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 const scoreData = await response.json(); // Contains score and score_id
                                 currentScoreId = scoreData.score_id; // Store the ID globally
 
-                                checkAndSaveHighScore(scoreData.overallScore);
-
                                 let scoreHtml =
                                     `Score: <span class="score-value">${scoreData.overallScore}/100</span><br>` +
                                     `(Accuracy: <span class="score-value">${scoreData.accuracyScore}</span>, Confidence: <span class="score-value">${scoreData.confidenceScore}</span>`;
@@ -490,6 +490,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                 captionOutput.textContent = finalTranscript;
                                 finalScoreOutput.innerHTML = scoreHtml; // Use innerHTML to render spans
                                 finalScoreOutput.style.display = "block"; // Show the container
+
+                                // Defer the modal pop-up to allow the UI to repaint first
+                                setTimeout(() => {
+                                    checkAndSaveHighScore(
+                                        scoreData.overallScore,
+                                    );
+                                }, 0);
                             } else {
                                 console.error("Could not fetch score");
                             }
@@ -539,10 +546,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const playAgainBtn = document.getElementById("play-again-btn");
 
     let currentPhrase = "";
-    let playerName = "";
-    let isFetching = false;
     let roundTimerStart = 0;
-    let recentRounds = [];
 
     listenBtn.addEventListener("click", playsound);
     checkBtn.addEventListener("click", checkAnswer);
