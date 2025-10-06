@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    let currentScoreId = null; // To hold the ID of the last calculated score
-
-    const HIGH_SCORES_KEY_LEARNING = "chirp-high-scores-learning";
+    let currentScoreId = null;
 
     async function getHighScores() {
         try {
@@ -12,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) {
             console.error("Could not fetch high scores from server", e);
         }
-        return getDefaultHighScores();
+        return [];
     }
 
     async function saveHighScore(name, score_id) {
@@ -31,45 +29,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function saveHighScoresLearning(scores) {
-        try {
-            localStorage.setItem(
-                HIGH_SCORES_KEY_LEARNING,
-                JSON.stringify(scores),
-            );
-        } catch (e) {
-            console.error("Could not save high scores to localStorage", e);
-        }
-    }
-
-    function getHighScoresLearning() {
-        try {
-            const scoresJSON = localStorage.getItem(HIGH_SCORES_KEY_LEARNING);
-            if (scoresJSON) {
-                return JSON.parse(scoresJSON);
-            }
-        } catch (error) {
-            console.error("Could not parse high scores from localStorage", e);
-            return getDefaultHighScores(); // Fallback
-        }
-        return getDefaultHighScores();
-    }
-
-    function getDefaultHighScores() {
-        // Return an empty array when no scores are in localStorage
-        return [];
-    }
-
     async function displayHighScores() {
         const highScores = await getHighScores();
         const tableBody = document.getElementById("high-scores-body");
-        if (!tableBody) return; // Exit if table isn't on the page
 
-        tableBody.innerHTML = ""; // Clear existing scores
+        tableBody.innerHTML = "";
 
         if (highScores.length === 0) {
             const row = document.createElement("tr");
-            // Use colspan="3" to span all columns (Rank, Name, Score)
             row.innerHTML = `<td colspan="3" class="placeholder">No stars identified yet.</td>`;
             tableBody.appendChild(row);
         } else {
@@ -85,34 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function displayHighScoresLearning() {
-        const highScores = getHighScoresLearning();
-        const tableBody = document.getElementById("high-scores-body-learning");
-
-        if (!tableBody) return; // Exit if table isn't on the page
-
-        tableBody.innerHTML = ""; // Clear existing scores
-
-        if (highScores.length === 0) {
-            const row = document.createElement("tr");
-            row.innerHTML = `<td colspan="3" class="placeholder">No players identified yet.</td>`;
-            tableBody.appendChild(row);
-        } else {
-            highScores.forEach((entry, index) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${entry.name}</td>
-        <td>${entry.score}</td>
-      `;
-                tableBody.appendChild(row);
-            });
-        }
-    }
-
-    // Display scores on initial load
     displayHighScores();
-    displayHighScoresLearning();
 
     // --- Modal Logic ---
     const modal = document.getElementById("highscore-modal");
@@ -120,21 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const playerNameInput = document.getElementById("player-name-input");
     const saveButton = document.getElementById("modal-save-button");
     const cancelButton = document.getElementById("modal-cancel-button");
-
-    const modalLearning = document.getElementById("highscore-modal-learning");
-    const modalScoreTextLearning = document.getElementById(
-        "modal-score-text-learning",
-    );
-    const playerNameInputLearning = document.getElementById(
-        "player-name-input-learning",
-    );
-    const saveButtonLearning = document.getElementById(
-        "modal-save-button-learning",
-    );
-    const cancelButtonLearning = document.getElementById(
-        "modal-cancel-button-learning",
-    );
-    const scoreLearningInput = document.getElementById("score-learning");
 
     let resolvePromise = null;
 
@@ -163,14 +88,6 @@ document.addEventListener("DOMContentLoaded", () => {
         resolvePromise = null; // Reset promise resolver
     }
 
-    function handleSavelearning() {
-        const name = playerNameInputLearning.value.trim();
-        const score = scoreLearningInput.value.trim();
-        checkAndSaveHighScoreLearning(score, name);
-        modalLearning.style.display = "none";
-        resolvePromise = null;
-    }
-
     function handleCancel() {
         if (resolvePromise) {
             resolvePromise(null); // Resolve with null if cancelled
@@ -179,19 +96,8 @@ document.addEventListener("DOMContentLoaded", () => {
         resolvePromise = null;
     }
 
-    function handleCancelLearning() {
-        if (resolvePromise) {
-            resolvePromise(null); // Resolve with null if cancelled
-        }
-        modalLearning.style.display = "none";
-        resolvePromise = null;
-    }
-
     saveButton.addEventListener("click", handleSave);
     cancelButton.addEventListener("click", handleCancel);
-
-    saveButtonLearning.addEventListener("click", handleSavelearning);
-    cancelButtonLearning.addEventListener("click", handleCancelLearning);
 
     // Also allow submitting with Enter key
     playerNameInput.addEventListener("keyup", (event) => {
@@ -207,36 +113,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (name) {
             // Use the globally stored currentScoreId
             await saveHighScore(name, currentScoreId);
-            await displayHighScores(); // Refresh the table from the server
+            await displayHighScores();
         }
     }
-
-    function checkAndSaveHighScoreLearning(newScore, name) {
-        const highScores = getHighScoresLearning();
-        const newEntry = { name: name, score: newScore };
-        highScores.push(newEntry);
-        highScores.sort((a, b) => b.score - a.score); // Sort descending
-        saveHighScoresLearning(highScores);
-        displayHighScoresLearning(); // Update the table
-    }
-
-    // --- Tab Switching Logic ---
-    const tabLinks = document.querySelectorAll(".tab-link");
-    const tabPanes = document.querySelectorAll(".tab-pane");
-
-    tabLinks.forEach((link) => {
-        link.addEventListener("click", () => {
-            const tabId = link.dataset.tab;
-
-            // Deactivate all tabs
-            tabLinks.forEach((l) => l.classList.remove("active"));
-            tabPanes.forEach((p) => p.classList.remove("active"));
-
-            // Activate the clicked tab
-            link.classList.add("active");
-            document.getElementById(tabId).classList.add("active");
-        });
-    });
 
     const captionButton = document.getElementById("caption-button");
     const captionOutput = document.getElementById("caption-output");
@@ -378,10 +257,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     captionButton.textContent = stop_singing;
                     captionButton.disabled = false; // Re-enable button
 
-                    // Start the 15-second recording timer
+                    // Start the recording timer
                     startRecordingTimer();
 
-                    // --- Original logic starts here ---
                     finalTranscript = ""; // Reset transcript
                     finalWords = []; // Reset words
                     const language = currentSongData?.language || "en-US"; // Default to en-US
@@ -470,6 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     words: finalWords,
                                 }),
                             });
+
                             if (response.ok) {
                                 const scoreData = await response.json(); // Contains score and score_id
                                 currentScoreId = scoreData.score_id; // Store the ID globally
@@ -536,152 +415,4 @@ document.addEventListener("DOMContentLoaded", () => {
             // The socket.onclose event will handle the final scoring and UI reset.
         }
     });
-
-    // Game elements
-    const listenBtn = document.getElementById("listen-btn");
-    const checkBtn = document.getElementById("check-btn");
-    const feedbackEl = document.getElementById("feedback");
-    const audioPlayer = document.getElementById("audio-player");
-    const answerInput = document.getElementById("answer-input");
-    const playAgainBtn = document.getElementById("play-again-btn");
-
-    let currentPhrase = "";
-    let roundTimerStart = 0;
-
-    listenBtn.addEventListener("click", playsound);
-    checkBtn.addEventListener("click", checkAnswer);
-    playAgainBtn.addEventListener("click", resetGame);
-
-    const levenshtein = (s1, s2) => {
-        s1 = s1.toLowerCase();
-        s2 = s2.toLowerCase();
-        const costs = [];
-        for (let i = 0; i <= s1.length; i++) {
-            let lastValue = i;
-            for (let j = 0; j <= s2.length; j++) {
-                if (i === 0) costs[j] = j;
-                else if (j > 0) {
-                    let newValue = costs[j - 1];
-                    if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
-                        newValue =
-                            Math.min(Math.min(newValue, lastValue), costs[j]) +
-                            1;
-                    }
-                    costs[j - 1] = lastValue;
-                    lastValue = newValue;
-                }
-            }
-            if (i > 0) costs[s2.length] = lastValue;
-        }
-        return costs[s2.length];
-    };
-
-    async function playsound() {
-        listenBtn.disabled = true;
-        listenBtn.textContent = "Carregando...";
-
-        try {
-            const response = await fetch("/api/new-phrase");
-            if (!response.ok) throw new Error("Network response was not ok");
-            const data = await response.json();
-            currentPhrase = data.phrase;
-            synthesizeAndPlay(currentPhrase);
-        } catch (error) {
-            console.error("Error fetching new phrase:", error);
-            feedbackEl.textContent = "Erro ao buscar frase.";
-        } finally {
-            isFetching = false;
-            listenBtn.disabled = false;
-            listenBtn.textContent = "Ouvir a Frase";
-        }
-    }
-
-    async function synthesizeAndPlay(text) {
-        try {
-            const response = await fetch("/api/synthesize", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: text }),
-            });
-            if (!response.ok) throw new Error("Failed to synthesize audio");
-            const audioBlob = await response.blob();
-            const audioUrl = URL.createObjectURL(audioBlob);
-            audioPlayer.src = audioUrl;
-            audioPlayer.play();
-        } catch (error) {
-            console.error("Error synthesizing audio:", error);
-            feedbackEl.textContent = "Erro ao gerar áudio.";
-        }
-    }
-
-    audioPlayer.onended = () => {
-        roundTimerStart = new Date();
-        answerInput.disabled = false;
-        checkBtn.disabled = false;
-        answerInput.focus();
-    };
-
-    function checkAnswer() {
-        const responseTime = (new Date() - roundTimerStart) / 1000;
-        const userAnswer = answerInput.value;
-
-        const distance = levenshtein(userAnswer, currentPhrase);
-        const accuracyScore = Math.max(0, 80 - distance * 5);
-        const timeBonus = Math.max(0, 20 - responseTime * 2);
-        const roundScore = Math.round(accuracyScore + timeBonus);
-
-        feedbackEl.innerHTML = `
-            <span class="round-score">Sua pontuação: ${roundScore}</span>
-            <span class="breakdown">
-                (Precisão: ${Math.round(accuracyScore)} + Bônus de Tempo: ${Math.round(timeBonus)})
-            </span>
-        `;
-
-        listenBtn.disabled = true;
-        checkBtn.disabled = true;
-        answerInput.disabled = true;
-        playAgainBtn.style.display = "block";
-
-        const scoreLearning = Math.round(accuracyScore) + Math.round(timeBonus);
-
-        modalScoreTextLearning.textContent = `You scored ${scoreLearning} points! Enter your name to save your score.`;
-        scoreLearningInput.value = scoreLearning;
-        playerNameInputLearning.value = "";
-        modalLearning.style.display = "flex";
-        playerNameInputLearning.focus();
-    }
-
-    function resetGame() {
-        feedbackEl.innerHTML = "";
-        answerInput.value = "";
-        playAgainBtn.style.display = "none";
-        listenBtn.disabled = false;
-    }
-
-    /* Call Analysis Logic */
-
-    document
-        .getElementById("analyze-sentiment-button")
-        .addEventListener("click", function () {
-            var analysisContainer =
-                document.getElementById("analysis-container");
-            var loadingSpinner = document.getElementById("loading-spinner");
-            var analysisMessage = document.getElementById("analysis-message");
-            var analyzeButton = document.getElementById(
-                "analyze-sentiment-button",
-            );
-            var analysisTable = document.getElementById("analysis-table");
-
-            // Hide button and show loading spinner
-            analyzeButton.style.display = "none";
-            analysisContainer.style.display = "block";
-            loadingSpinner.style.display = "block";
-            analysisMessage.style.display = "none";
-
-            setTimeout(function () {
-                // Hide loading spinner and show message
-                loadingSpinner.style.display = "none";
-                analysisTable.style.display = "block";
-            }, 4000);
-        });
 });
