@@ -3,14 +3,11 @@
 # Exit on error
 set -e
 
-# --- Configuration ---
-PROJECT_ID="summit-demo-469118"
 if [ -z "$PROJECT_ID" ]; then
   read -p "Enter the GCP Project ID: " PROJECT_ID
 fi
-SERVICE_NAME="summit-demo"
+SERVICE_NAME="chirp-singing-contest-demo"
 REGION="us-central1"
-# ---
 
 # Build the container image using Google Cloud Build
 gcloud builds submit --tag "gcr.io/$PROJECT_ID/$SERVICE_NAME"

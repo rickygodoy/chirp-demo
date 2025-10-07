@@ -44,7 +44,7 @@ MAX_HIGH_SCORES = 10
 # --- FastAPI App Initialization ---
 logging.basicConfig(level=logging.INFO)
 app = FastAPI()
-# app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # --- Mount static directories and templates ---
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -231,7 +231,10 @@ async def get_song_data(song_key: str):
     song = song_refrains.get(song_key)
     if not song:
         return JSONResponse(content={"error": "Song not found"}, status_code=404)
-    return JSONResponse(content=song)
+    
+    song_for_client = song.copy()
+    del song_for_client["words"]
+    return JSONResponse(content=song_for_client)
 
 @app.post("/api/score")
 async def score(request: ScoreRequest):
@@ -291,11 +294,12 @@ def run_grpc_stream(audio_queue: queue.Queue, results_queue: asyncio.Queue, lang
             for result in response.results:
                 if not result.alternatives:
                     continue
+                print(result.alternatives[0].words)
                 words_list = [
                     {
                         "word": word.word,
-                        "startTime": word.start_offset.total_seconds(),
-                        "endTime": word.end_offset.total_seconds(),
+                        "startTime": word.start_offset.seconds,
+                        "endTime": word.end_offset.seconds,
                         "confidence": word.confidence,
                     }
                     for word in result.alternatives[0].words
@@ -345,7 +349,7 @@ async def websocket_endpoint(websocket: WebSocket, language_code: str = "en-US")
             if message is None:
                 break
             await websocket.send_text(json.dumps(message))
-        # Don't close the connection here, let the client decide when to close.
+
         await websocket.close()
 
     loop = asyncio.get_running_loop()

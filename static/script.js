@@ -318,18 +318,26 @@ document.addEventListener("DOMContentLoaded", () => {
                     socket.onmessage = (event) => {
                         const data = JSON.parse(event.data);
 
-                        console.log("received", data);
+                        // Create a stable part and a volatile part for the transcript
+                        let finalPart = finalTranscript;
+                        let interimPart = "";
 
                         if (data.isFinal) {
-                            // Accumulate final results
+                            // When a result is final, add it to the stable transcript
                             finalTranscript += data.transcript + " ";
                             finalWords.push(...data.words);
-                            captionOutput.textContent = finalTranscript;
+
+                            // After a final result, the interim part is empty
+                            finalPart = finalTranscript;
+                            interimPart = "";
                         } else {
-                            // Display the interim transcript, appended to the final part
-                            captionOutput.textContent =
-                                finalTranscript + data.transcript;
+                            // For interim results, the transcript is the volatile part
+                            interimPart = data.transcript;
                         }
+
+                        // Update the UI using innerHTML to style the interim part differently
+                        // This makes it clear what's happening. The grey text will appear to "solidify" into black text.
+                        captionOutput.innerHTML = `${finalPart}<span style="color: #999;">${interimPart}</span>`;
                     };
 
                     socket.onclose = async () => {
