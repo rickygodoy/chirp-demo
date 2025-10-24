@@ -9,271 +9,541 @@
       href="{{ url_for('static', path='style.css') }}"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
       rel="stylesheet"
     />
   </head>
   <body>
-    <header>
-      <div class="header-container">
-        <div class="logo">
-          <img src="{{ url_for('static', path='logo.png') }}" alt="Logo">
+    <div class="app-container">
+      <header class="modern-header">
+        <div class="header-container">
+          <div class="logo-section">
+            <div class="logo">
+              <img src="{{ url_for('static', path='logo.svg') }}" alt="Chirp Demo Logo">
+            </div>
+            <div class="brand-info">
+              <h1>Chirp Demo</h1>
+              <span class="subtitle">Modelo de IA para Áudio</span>
+            </div>
+          </div>
+          
+          <nav class="header-nav">
+            <div class="nav-tabs">
+              <button class="tab-link active" data-tab="welcome">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+              </button>
+              <button class="tab-link" data-tab="singing-contest">
+                <i class="fas fa-microphone"></i>
+                <span>Canto</span>
+              </button>
+              <button class="tab-link" data-tab="learning-contest">
+                <i class="fas fa-headphones"></i>
+                <span>Audição</span>
+              </button>
+              <button class="tab-link" data-tab="sentiment-analysis">
+                <i class="fas fa-phone"></i>
+                <span>Análise</span>
+              </button>
+            </div>
+          </nav>
         </div>
-        <h1>Demonstração do Modelo Chirp</h1>
-        <nav class="header-nav">
-          <button class="tab-link active" data-tab="welcome">Boas-vindas</button>
-          <button class="tab-link" data-tab="singing-contest">
-            Concurso de Canto
-          </button>
-          <button class="tab-link" data-tab="learning-contest">
-            Concurso de Audição
-          </button>
-          <button class="tab-link" data-tab="sentiment-analysis">
-            Análise de Chamada
-          </button>
-        </nav>
-      </div>
-    </header>
+      </header>
 
-    <main class="main-content">
-      <div id="welcome" class="tab-pane active">
-        <div class="welcome-container">
-          <h2>Bem-vindos à Demonstração do Modelo Chirp</h2>
-          <p>
-            Esta é uma demonstração interativa do modelo Chirp do Google
-          </p>
-          <p>
-            Navegue para a aba <strong>Concurso de Canto</strong> ou <strong>Concurso de Audição</strong> para experimentar.
-          </p>
-        </div>
-      </div>
-
-      <div id="singing-contest" class="tab-pane">
-        <div class="main-container">
-          <div class="content-card">
-            <h2>O Concurso de Canto Chirp</h2>
-            <p>
-              Você deve cantar precisamente sobre a letra para ganhar pontos
-              (precisão, confiança das palavras e tempo).
-            </p>
-            <div class="interactive-area">
-              <p class="prompt">
-                Pressione 'Iniciar Canto' e o microfone é seu! Boa sorte!
+      <main class="main-content">
+        <div id="welcome" class="tab-pane active">
+          <div class="welcome-hero">
+            <div class="hero-content">
+              <div class="hero-icon">
+                <i class="fas fa-waveform-lines"></i>
+              </div>
+              <h2>Bem-vindos à Demonstração do Modelo Chirp</h2>
+              <p class="hero-description">
+                Explore as capacidades avançadas do modelo Chirp do Google para processamento de áudio e reconhecimento de voz através de demonstrações interativas.
               </p>
-              <button id="caption-button" disabled>Iniciar Canto</button>
-              <div class="song-selection-container">
-                <div id="song-select" class="custom-select">
-                  <div class="select-trigger">
-                    <span>Selecione uma música primeiro</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      class="arrow"
-                    >
-                      <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
+              
+              <div class="feature-grid">
+                <div class="feature-card" data-tab="singing-contest">
+                  <div class="feature-icon">
+                    <i class="fas fa-microphone"></i>
                   </div>
-                  <div class="options">
-                    <div class="option" data-value="aranha">A dona aranha</div>
-                    <div class="option" data-value="atirei">
-                      Atirei o pau no gato
+                  <h3>Concurso de Canto</h3>
+                  <p>Teste sua precisão vocal cantando sobre letras específicas</p>
+                  <button class="feature-btn tab-link" data-tab="singing-contest">
+                    Experimentar <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+                
+                <div class="feature-card" data-tab="learning-contest">
+                  <div class="feature-icon">
+                    <i class="fas fa-headphones"></i>
+                  </div>
+                  <h3>Concurso de Audição</h3>
+                  <p>Ouça e transcreva frases para testar sua compreensão</p>
+                  <button class="feature-btn tab-link" data-tab="learning-contest">
+                    Experimentar <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+                
+                <div class="feature-card" data-tab="sentiment-analysis">
+                  <div class="feature-icon">
+                    <i class="fas fa-phone"></i>
+                  </div>
+                  <h3>Análise de Chamada</h3>
+                  <p>Veja como o Chirp transcreve chamadas com múltiplos speakers</p>
+                  <button class="feature-btn tab-link" data-tab="sentiment-analysis">
+                    Experimentar <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="singing-contest" class="tab-pane">
+          <div class="contest-layout">
+            <div class="contest-main">
+              <div class="content-card modern-card">
+                <div class="card-header">
+                  <div class="header-icon">
+                    <i class="fas fa-microphone"></i>
+                  </div>
+                  <div class="header-text">
+                    <h2>Concurso de Canto Chirp</h2>
+                    <p class="card-subtitle">
+                      Cante com precisão sobre a letra para ganhar pontos baseados em precisão, confiança e tempo.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="interactive-area">
+                  <div class="control-section">
+                    <div class="song-selection-container">
+                      <label class="input-label">
+                        <i class="fas fa-music"></i>
+                        Escolha sua música
+                      </label>
+                      <div id="song-select" class="custom-select modern-select">
+                        <div class="select-trigger">
+                          <span>Selecione uma música primeiro</span>
+                          <i class="fas fa-chevron-down arrow"></i>
+                        </div>
+                        <div class="options">
+                          <div class="option" data-value="aranha">
+                            <i class="fas fa-spider"></i>
+                            A dona aranha
+                          </div>
+                          <div class="option" data-value="atirei">
+                            <i class="fas fa-cat"></i>
+                            Atirei o pau no gato
+                          </div>
+                          <div class="option" data-value="cravo">
+                            <i class="fas fa-rose"></i>
+                            Cravo brigou com a rosa
+                          </div>
+                          <div class="option" data-value="peixe">
+                            <i class="fas fa-fish"></i>
+                            Peixe vivo
+                          </div>
+                          <div class="option" data-value="sapo">
+                            <i class="fas fa-frog"></i>
+                            Sapo Cururu
+                          </div>
+                          <div class="option" data-value="jingle">
+                            <i class="fas fa-bell"></i>
+                            Jingle Bells
+                          </div>
+                          <div class="option" data-value="spider">
+                            <i class="fas fa-spider"></i>
+                            Itsy-bitsy spider
+                          </div>
+                          <div class="option" data-value="wish">
+                            <i class="fas fa-gift"></i>
+                            Merry Christmas
+                          </div>
+                          <div class="option" data-value="old">
+                            <i class="fas fa-tractor"></i>
+                            Old MacDonald had a farm
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div class="option" data-value="cravo">
-                      Cravo brigou com a rosa
+                    
+                    <div class="action-section">
+                      <p class="prompt">
+                        <i class="fas fa-info-circle"></i>
+                        Pressione 'Iniciar Canto' e o microfone é seu! Boa sorte!
+                      </p>
+                      <button id="caption-button" class="primary-btn" disabled>
+                        <i class="fas fa-microphone"></i>
+                        Iniciar Canto
+                      </button>
                     </div>
-                    <div class="option" data-value="peixe">Peixe vivo</div>
-                    <div class="option" data-value="sapo">Sapo Cururu</div>
-                    <div class="option" data-value="jingle">Jingle Bells</div>
-                    <div class="option" data-value="spider">
-                      Itsy-bitsy spider
+                  </div>
+                  
+                  <div id="timer-container" class="timer-section hidden">
+                    <div id="countdown-text" class="countdown-display"></div>
+                    <div id="progress-bar-container" class="progress-container">
+                      <div id="progress-bar" class="progress-fill"></div>
                     </div>
-                    <div class="option" data-value="wish">Merry Christmas</div>
-                    <div class="option" data-value="old">
-                      Old MacDonald had a farm
+                  </div>
+                  
+                  <div class="results-section">
+                    <div class="output-container">
+                      <pre id="refrain-output" class="refrain-display"></pre>
+                      <pre id="caption-output" class="caption-display"></pre>
+                    </div>
+                    <div id="final-score-output" class="score-display"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="contest-sidebar">
+              <div class="leaderboard-card modern-card">
+                <div class="card-header">
+                  <div class="header-icon">
+                    <i class="fas fa-trophy"></i>
+                  </div>
+                  <div class="header-text">
+                    <h2>Ranking</h2>
+                    <p class="card-subtitle">Melhores pontuações</p>
+                  </div>
+                </div>
+                <div class="leaderboard-content">
+                  <table class="highscore-table modern-table">
+                    <thead>
+                      <tr>
+                        <th><i class="fas fa-medal"></i> Pos</th>
+                        <th><i class="fas fa-user"></i> Nome</th>
+                        <th><i class="fas fa-star"></i> Pontos</th>
+                      </tr>
+                    </thead>
+                    <tbody id="high-scores-body">
+                      <!-- Scores will be inserted here by script.js -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <div id="learning-contest" class="tab-pane">
+          <div class="contest-layout">
+            <div class="contest-main">
+              <div class="content-card modern-card">
+                <div class="card-header">
+                  <div class="header-icon">
+                    <i class="fas fa-headphones"></i>
+                  </div>
+                  <div class="header-text">
+                    <h2>Concurso de Audição Chirp</h2>
+                    <p class="card-subtitle">
+                      Ouça atentamente e transcreva com precisão para ganhar pontos
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="interactive-area">
+                  <div class="listening-section">
+                    <div class="audio-controls">
+                      <p class="prompt">
+                        <i class="fas fa-info-circle"></i>
+                        Pressione 'Reproduzir Frase' e escreva o que você ouve! Boa sorte!
+                      </p>
+                      <audio id="audio-player" style="display: none;"></audio>
+                      <button id="listen-btn" class="primary-btn">
+                        <i class="fas fa-play"></i>
+                        Reproduzir Frase
+                      </button>
+                    </div>
+
+                    <div class="answer-section">
+                      <label class="input-label">
+                        <i class="fas fa-keyboard"></i>
+                        Sua resposta
+                      </label>
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          id="answer-input"
+                          class="modern-input"
+                          placeholder="Digite a frase que você ouviu..."
+                        />
+                        <button id="check-btn" class="secondary-btn" disabled>
+                          <i class="fas fa-check"></i>
+                          Confirmar
+                        </button>
+                      </div>
+                    </div>
+
+                    <div id="feedback" class="feedback-section">
+                      <!-- Feedback da rodada aparecerá aqui -->
+                    </div>
+
+                    <div class="action-buttons">
+                      <button id="play-again-btn" class="primary-btn" style="display: none;">
+                        <i class="fas fa-redo"></i>
+                        Jogar Novamente
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
-              <div id="timer-container" class="hidden">
-                <div id="countdown-text"></div>
-                <div id="progress-bar-container">
-                  <div id="progress-bar"></div>
+            </div>
+
+            <aside class="contest-sidebar">
+              <input id="score-learning" style="display: none;" />
+              <div class="leaderboard-card modern-card">
+                <div class="card-header">
+                  <div class="header-icon">
+                    <i class="fas fa-trophy"></i>
+                  </div>
+                  <div class="header-text">
+                    <h2>Ranking</h2>
+                    <p class="card-subtitle">Melhores pontuações</p>
+                  </div>
+                </div>
+                <div class="leaderboard-content">
+                  <table class="highscore-table modern-table">
+                    <thead>
+                      <tr>
+                        <th><i class="fas fa-medal"></i> Pos</th>
+                        <th><i class="fas fa-user"></i> Nome</th>
+                        <th><i class="fas fa-star"></i> Pontos</th>
+                      </tr>
+                    </thead>
+                    <tbody id="high-scores-body-learning">
+                      <!-- Scores will be inserted here by script.js -->
+                    </tbody>
+                  </table>
                 </div>
               </div>
-              <pre id="refrain-output"></pre>
-              <pre id="caption-output"></pre>
-              <div id="final-score-output"></div>
-            </div>
+            </aside>
           </div>
-
-          <aside class="leaderboard-card">
-            <h2>Melhores Pontuações</h2>
-            <table class="highscore-table">
-              <thead>
-                <tr>
-                  <th>Posição</th>
-                  <th>Nome</th>
-                  <th>Pontuação</th>
-                </tr>
-              </thead>
-              <tbody id="high-scores-body">
-                <!-- Scores will be inserted here by script.js -->
-              </tbody>
-            </table>
-          </aside>
         </div>
-      </div>
 
-      <div id="learning-contest" class="tab-pane">
-        <div class="main-container">
-          <div class="content-card">
-            <h2>O Concurso de Audição Chirp</h2>
-            <p>Você deve ouvir e escrever precisamente para ganhar pontos</p>
-            <div class="interactive-area">
-              <p class="prompt">
-                Pressione 'Reproduzir Frase' e escreva o que você ouve! Boa sorte!
-              </p>
-               <audio id="audio-player" style="display: none;"></audio>
-              <button id="listen-btn">Reproduzir Frase</button>
-
-              <div class="answer-section">
-                <input
-                  type="text"
-                  id="answer-input"
-                  placeholder="Digite a frase que você ouviu..."
-                />
-                <button id="check-btn" disabled>Confirmar</button>
-              </div>
-
-              <div id="feedback">
-                <!-- Feedback da rodada aparecerá aqui -->
-              </div>
-
-              <button id="play-again-btn" style="display: none;">Jogar Novamente</button>
-            </div>
-          </div>
-
-
-          <aside class="leaderboard-card">
-            <input id="score-learning" style="display: none;" />
-            <h2>Melhores Pontuações</h2>
-            <table class="highscore-table">
-              <thead>
-                <tr>
-                  <th>Posição</th>
-                  <th>Nome</th>
-                  <th>Pontuação</th>
-                </tr>
-              </thead>
-              <tbody id="high-scores-body-learning">
-                <!-- Scores will be inserted here by script.js -->
-              </tbody>
-            </table>
-          </aside>
-        </div>
-      </div>
-
-      <div id="sentiment-analysis" class="tab-pane">
-        <div class="main-container">
-          <div class="content-card">
-              <h2>Análise de Chamada</h2>
-              <p>
-                Nesta demonstração você pode ver como o Chirp pode transcrever uma Chamada
-                com múltiplos falantes.
-              </p>
-              <div class="interactive-area">
-                <p class="prompt">
-                  Pressione 'Reproduzir Áudio' para ouvir o áudio
-                </p>
-                <audio id="sentiment-audio" src="{{ url_for('static', path='call_br.wav') }}" controls style="width: 100%;"></audio>
-                <div class="sentiment-results"></div>
-                <button id="analyze-sentiment-button">Analisar Chamada</button>
-                <div id="analysis-container" style="display: none;">
-                  <div id="loading-spinner"></div>
-                  <p id="analysis-message" style="display: none;">
-                    <table id="analysis-table" style="display: none;">
-    <thead>
-      <tr>
-        <th>Falante</th>
-        <th>Texto</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>0</td>
-        <td>Meu nome é Bruno, bom dia. Em que posso ajudar?</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Bom dia. Eu tô ligando porque a minha fatura veio com 50 reais em serviços adicionais que eu não contratei e para piorar, viajei para Santos e Belo Horizonte na semana passada e fiquei totalmente sem sinal, um absurdo.</td>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td>Entendo perfeitamente a sua frustração, senhora. Peço desculpas pelo transtorno. Só um momento, por favor, vou verificar seu cadastro.</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Hum.</td>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td>Certo, localizei aqui. Realmente houve um erro de tarifação e registramos uma instabilidade na cobertura dessas regiões.</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>E então?</td>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td>Já estornei o valor cobrado indevidamente e pela falha no serviço, estou aplicando agora mesmo um desconto de 40% na sua próxima fatura como compensação. Pode ser?</td>
-      </tr>
-      <tr>
-        <td>1</td>
-        <td>Nossa, 40%? Perfeito, assim sim. Resolvido então, muito obrigado.</td>
-      </tr>
-      <tr>
-        <td>0</td>
-        <td>Eu que agradeço o contato. Tenha um ótimo dia.</td>
-      </tr>
-    </tbody>
-  </table>
+        <div id="sentiment-analysis" class="tab-pane">
+          <div class="analysis-layout">
+            <div class="content-card modern-card full-width">
+              <div class="card-header">
+                <div class="header-icon">
+                  <i class="fas fa-phone"></i>
+                </div>
+                <div class="header-text">
+                  <h2>Análise de Chamada</h2>
+                  <p class="card-subtitle">
+                    Demonstração de como o Chirp transcreve chamadas com múltiplos speakers e identifica diferentes vozes
                   </p>
                 </div>
               </div>
+              
+              <div class="interactive-area">
+                <div class="audio-section">
+                  <div class="audio-player-container">
+                    <label class="input-label">
+                      <i class="fas fa-volume-up"></i>
+                      Áudio da chamada de exemplo
+                    </label>
+                    <audio id="sentiment-audio" src="{{ url_for('static', path='call_br.wav') }}" controls class="modern-audio"></audio>
+                  </div>
+                  
+                  <div class="analysis-controls">
+                    <p class="prompt">
+                      <i class="fas fa-info-circle"></i>
+                      Reproduza o áudio acima e depois clique em 'Analisar Chamada' para ver a transcrição
+                    </p>
+                    <button id="analyze-sentiment-button" class="primary-btn">
+                      <i class="fas fa-brain"></i>
+                      Analisar Chamada
+                    </button>
+                  </div>
+                </div>
+                
+                <div class="sentiment-results"></div>
+                
+                <div id="analysis-container" class="analysis-results" style="display: none;">
+                  <div id="loading-spinner" class="loading-section">
+                    <div class="spinner"></div>
+                    <p>Processando áudio...</p>
+                  </div>
+                  
+                  <div id="analysis-message" class="results-section" style="display: none;">
+                    <div class="results-header">
+                      <h3>
+                        <i class="fas fa-comments"></i>
+                        Transcrição da Conversa
+                      </h3>
+                      <p class="results-subtitle">Identificação automática de speakers e transcrição precisa</p>
+                    </div>
+                    
+                    <div class="conversation-container">
+                      <table id="analysis-table" class="conversation-table" style="display: none;">
+                        <thead>
+                          <tr>
+                            <th><i class="fas fa-user"></i> Speaker</th>
+                            <th><i class="fas fa-comment"></i> Transcrição</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="speaker-0">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge agent">
+                                <i class="fas fa-headset"></i>
+                                <span>Atendente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Meu nome é Bruno, bom dia. Em que posso ajudar?</td>
+                          </tr>
+                          <tr class="speaker-1">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge customer">
+                                <i class="fas fa-user"></i>
+                                <span>Cliente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Bom dia. Eu tô ligando porque a minha fatura veio com 50 reais em serviços adicionais que eu não contratei e para piorar, viajei para Santos e Belo Horizonte na semana passada e fiquei totalmente sem sinal, um absurdo.</td>
+                          </tr>
+                          <tr class="speaker-0">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge agent">
+                                <i class="fas fa-headset"></i>
+                                <span>Atendente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Entendo perfeitamente a sua frustração, senhora. Peço desculpas pelo transtorno. Só um momento, por favor, vou verificar seu cadastro.</td>
+                          </tr>
+                          <tr class="speaker-1">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge customer">
+                                <i class="fas fa-user"></i>
+                                <span>Cliente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Hum.</td>
+                          </tr>
+                          <tr class="speaker-0">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge agent">
+                                <i class="fas fa-headset"></i>
+                                <span>Atendente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Certo, localizei aqui. Realmente houve um erro de tarifação e registramos uma instabilidade na cobertura dessas regiões.</td>
+                          </tr>
+                          <tr class="speaker-1">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge customer">
+                                <i class="fas fa-user"></i>
+                                <span>Cliente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">E então?</td>
+                          </tr>
+                          <tr class="speaker-0">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge agent">
+                                <i class="fas fa-headset"></i>
+                                <span>Atendente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Já estornei o valor cobrado indevidamente e pela falha no serviço, estou aplicando agora mesmo um desconto de 40% na sua próxima fatura como compensação. Pode ser?</td>
+                          </tr>
+                          <tr class="speaker-1">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge customer">
+                                <i class="fas fa-user"></i>
+                                <span>Cliente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Nossa, 40%? Perfeito, assim sim. Resolvido então, muito obrigado.</td>
+                          </tr>
+                          <tr class="speaker-0">
+                            <td class="speaker-cell">
+                              <div class="speaker-badge agent">
+                                <i class="fas fa-headset"></i>
+                                <span>Atendente</span>
+                              </div>
+                            </td>
+                            <td class="message-cell">Eu que agradeço o contato. Tenha um ótimo dia.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </main>
+
+      <!-- Modern Modal for High Score Name Input -->
+      <div id="highscore-modal" class="modal-overlay modern-modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <h2>Nova Melhor Pontuação!</h2>
+          </div>
+          <div class="modal-body">
+            <p id="modal-score-text" class="score-announcement"></p>
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-user"></i>
+                Seu nome
+              </label>
+              <input type="text" id="player-name-input" class="modern-input" placeholder="Digite seu nome" maxlength="20">
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button id="modal-save-button" class="primary-btn">
+              <i class="fas fa-save"></i>
+              Salvar
+            </button>
+            <button id="modal-cancel-button" class="secondary-btn">
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
           </div>
         </div>
       </div>
-    </main>
 
-    <!-- Modal for High Score Name Input -->
-    <div id="highscore-modal" class="modal-overlay" style="display: none;">
-      <div class="modal-content">
-        <h2>Nova Melhor Pontuação!</h2>
-        <p id="modal-score-text"></p>
-        <input type="text" id="player-name-input" placeholder="Digite seu nome" maxlength="20">
-        <div class="modal-buttons">
-          <button id="modal-save-button">Salvar</button>
-          <button id="modal-cancel-button">Cancelar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal for High Score Name Input -->
-    <div id="highscore-modal-learning" class="modal-overlay" style="display: none;">
-      <div class="modal-content">
-        <h2>Nova Melhor Pontuação!</h2>
-        <p id="modal-score-text-learning"></p>
-        <input type="text" id="player-name-input-learning" placeholder="Digite seu nome" maxlength="20">
-        <div class="modal-buttons">
-          <button id="modal-save-button-learning">Salvar</button>
-          <button id="modal-cancel-button-learning">Cancelar</button>
+      <!-- Modern Modal for Learning Contest High Score -->
+      <div id="highscore-modal-learning" class="modal-overlay modern-modal" style="display: none;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <h2>Nova Melhor Pontuação!</h2>
+          </div>
+          <div class="modal-body">
+            <p id="modal-score-text-learning" class="score-announcement"></p>
+            <div class="input-group">
+              <label class="input-label">
+                <i class="fas fa-user"></i>
+                Seu nome
+              </label>
+              <input type="text" id="player-name-input-learning" class="modern-input" placeholder="Digite seu nome" maxlength="20">
+            </div>
+          </div>
+          <div class="modal-buttons">
+            <button id="modal-save-button-learning" class="primary-btn">
+              <i class="fas fa-save"></i>
+              Salvar
+            </button>
+            <button id="modal-cancel-button-learning" class="secondary-btn">
+              <i class="fas fa-times"></i>
+              Cancelar
+            </button>
+          </div>
         </div>
       </div>
     </div>
